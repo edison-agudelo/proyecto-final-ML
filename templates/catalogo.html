@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Catálogo de Productos</h2>
+
+<div class="catalogo">
+    {% for p in productos %}
+        <div class="producto">
+            <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
+            <h3>{{ p['nombre'] }}</h3>
+            <p>{{ p['descripcion'] }}</p>
+            <p><strong>${{ p['precio'] }}</strong></p>
+            <a href="{{ url_for('pedido') }}?producto={{ p['nombre'] }}" class="btn">Hacer pedido</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
