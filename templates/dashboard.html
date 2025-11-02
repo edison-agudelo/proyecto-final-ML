@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Panel del Administrador</h2>
+
+<h3>Productos registrados</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Tipo</th>
+    </tr>
+    {% for p in productos %}
+    <tr>
+        <td>{{ p['id'] }}</td>
+        <td>{{ p['nombre'] }}</td>
+        <td>${{ p['precio'] }}</td>
+        <td>{{ p['tipo'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
