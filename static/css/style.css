@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #007bff;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 1em;
+}
+
+main {
+    padding: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+form input, form button {
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.catalogo {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.producto {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    text-align: center;
+}
+
+.producto img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.alert-container {
+    text-align: center;
+}
+
+.alert {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.alert.success { background: #28a745; color: white; }
+.alert.danger { background: #dc3545; color: white; }
+.alert.info { background: #17a2b8; color: white; }
+
+footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Realizar Pedido</h2>
+
+<form method="POST">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required>
+
+    <label>Teléfono:</label>
+    <input type="text" name="telefono" required>
+
+    <label>Producto:</label>
+    <input type="text" name="producto" value="{{ request.args.get('producto', '') }}" required>
+
+    <label>Cantidad:</label>
+    <input type="number" name="cantidad" required>
+
+    <button type="submit">Enviar pedido por WhatsApp</button>
+</form>
+{% endblock %}
