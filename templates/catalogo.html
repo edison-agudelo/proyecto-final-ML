@@ -1,16 +1,111 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Catálogo de Productos</h2>
 
-<div class="catalogo">
-    {% for p in productos %}
-        <div class="producto">
-            <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
-            <h3>{{ p['nombre'] }}</h3>
-            <p>{{ p['descripcion'] }}</p>
-            <p><strong>${{ p['precio'] }}</strong></p>
-            <a href="{{ url_for('pedido') }}?producto={{ p['nombre'] }}" class="btn">Hacer pedido</a>
-        </div>
-    {% endfor %}
+<div class="catalogo-container">
+    <div class="catalogo">
+        {% for p in productos %}
+            <div class="producto">
+                <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
+                <h3>{{ p['nombre'] }}</h3>
+                <p>{{ p['descripcion'] }}</p>
+                <p><strong>${{ p['precio'] }}</strong></p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="boton-pedido">
+        <a href="{{ url_for('pedido') }}" class="btn-pedido">🛒 Realizar Pedido</a>
+    </div>
 </div>
+
+<style>
+    h2 {
+        text-align: center;
+        margin-top: 30px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .catalogo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 20px 0;
+    }
+
+    .catalogo {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        justify-content: center;
+        align-items: center;
+        width: 90%;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .producto {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .producto:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .producto img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .producto h3 {
+        font-size: 1.2rem;
+        margin: 10px 0 5px 0;
+        color: #333;
+    }
+
+    .producto p {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .producto strong {
+        color: #1a8917;
+    }
+
+    .boton-pedido {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .btn-pedido {
+        display: inline-block;
+        background-color: #1a8917;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: bold;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .btn-pedido:hover {
+        background-color: #156d13;
+    }
+</style>
+
 {% endblock %}

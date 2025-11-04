@@ -2,19 +2,53 @@
 {% block content %}
 <h2>Realizar Pedido</h2>
 
-<form method="POST">
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required>
+<form method="POST" id="pedidoForm">
+    <label>Nombre del cliente:</label>
+    <input type="text" name="nombre" placeholder="Tu nombre completo" required>
 
     <label>Teléfono:</label>
-    <input type="text" name="telefono" required>
+    <input type="text" name="telefono" placeholder="Tu número de contacto" required>
 
     <label>Producto:</label>
-    <input type="text" name="producto" value="{{ request.args.get('producto', '') }}" required>
+    <select name="producto_id" id="productoSelect" required>
+        <option value="">Seleccione un producto</option>
+        {% for producto in productos %}
+            <option value="{{ producto.id }}" data-precio="{{ producto.precio }}" data-nombre="{{ producto.nombre }}">
+                {{ producto.nombre }} - ${{ producto.precio }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <label>Precio unitario:</label>
+    <input type="text" id="precio" readonly>
 
     <label>Cantidad:</label>
-    <input type="number" name="cantidad" required>
+    <input type="number" name="cantidad" id="cantidad" min="1" value="1" required>
+
+    <label>Total a pagar:</label>
+    <input type="text" id="total" readonly>
 
     <button type="submit">Enviar pedido por WhatsApp</button>
 </form>
+
+<script>
+    const productoSelect = document.getElementById('productoSelect');
+    const cantidadInput = document.getElementById('cantidad');
+    const precioInput = document.getElementById('precio');
+    const totalInput = document.getElementById('total');
+    const form = document.getElementById('pedidoForm');
+
+    function actualizarPrecioYTotal() {
+        const opcion = productoSelect.options[productoSelect.selectedIndex];
+        const precio = parseFloat(opcion.getAttribute('data-precio')) || 0;
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        const total = precio * cantidad;
+
+        precioInput.value = precio ? `$${precio.toFixed(2)}` : '';
+        totalInput.value = total ? `$${total.toFixed(2)}` : '';
+    }
+
+    productoSelect.addEventListener('change', actualizarPrecioYTotal);
+    cantidadInput.addEventListener('input', actualizarPrecioYTotal);
+</script>
 {% endblock %}

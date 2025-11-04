@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title if title else "Puré Inteligente - ML" }}</title>
+    <title>Kawsa Viva - Innovación Alimentaria</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
-        <h1>Puré Inteligente con Machine Learning</h1>
-        <a href="{{ url_for('prediccion') }}">Predicción</a>
->
+        <h1>Kawsa Viva</h1>
+        <nav>
+            <a href="{{ url_for('inicio') }}">Inicio</a>
+            <a href="{{ url_for('quienes') }}">Quiénes Somos</a>
             <a href="{{ url_for('catalogo') }}">Catálogo</a>
+
             {% if session.get('logueado') %}
-                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('dashboard') }}">Administrador</a>
                 <a href="{{ url_for('logout') }}">Cerrar sesión</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Admin</a>
+                <a href="{{ url_for('login') }}">Administrador</a>
             {% endif %}
         </nav>
     </header>
@@ -31,11 +33,64 @@
                 </div>
             {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
+
+        {% block content %}
+        <!-- ============================= -->
+        <!-- 🌿 INICIO - PÁGINA PRINCIPAL -->
+        <!-- ============================= -->
+
+        <!-- 🔹 Hero principal -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Bienvenido a Kawsa Viva</h1>
+                <p>
+                    En Kawsa Viva, creemos en la riqueza de nuestras raíces y en la importancia de cuidar del medio ambiente mientras compartimos sabores auténticos y nutritivos. 
+                    Nuestro compromiso es ofrecerte productos innovadores, prácticos y saludables, elaborados a partir de ingredientes tradicionales como la yuca y el camote, cultivados con respeto por la tierra y sustentabilidad.
+                </p>
+                <p>
+                    Cada uno de nuestros productos refleja un enfoque consciente y responsable, donde la tradición se combina con la tecnología para brindarte alimentos fáciles de preparar, nutritivos y con un impacto positivo en el planeta. 
+                    Utilizamos residuos de yuca para crear utensilios biodegradables, demostrando que incluso lo que suele desechar tiene un valor importante en nuestro compromiso ecológico.
+                </p>
+                <p>
+                    Queremos que formes parte de nuestra comunidad, que valores lo natural, lo local y lo saludable. 
+                    En Kawsa Viva, promovemos un estilo de vida donde la alimentación consciente y la sostenibilidad van de la mano, apoyándonos en valores como la autenticidad, la innovación y el respeto por nuestra cultura y entorno.
+                </p>
+                <p>
+                    Te invitamos a explorar nuestro enfoque, a conocer nuestros productos y a acompañarnos en esta aventura que combina sabor, innovación y respeto por la vida y nuestro planeta.
+                </p>
+            </div>
+        </section>
+
+        <!-- 🔹 Productos destacados -->
+        <section class="destacados">
+            <h2>Productos Destacados</h2>
+            <div class="catalogo">
+                {% for p in productos[:3] %}
+                    <div class="producto">
+                        <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
+                        <h3>{{ p['nombre'] }}</h3>
+                        <p>${{ p['precio'] }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="boton-pedido">
+                <a href="{{ url_for('catalogo') }}" class="btn-pedido">Ver catálogo completo</a>
+            </div>
+        </section>
+
+        <!-- 🔹 Compromiso ecológico -->
+        <section class="sostenibilidad">
+            <h2>Comprometidos con la sostenibilidad</h2>
+            <p>
+                En Kawsa Viva creemos que la alimentación puede ser un puente entre la salud y la sostenibilidad.
+                Trabajamos con productores locales y procesos ecológicos para cuidar tu bienestar y nuestro planeta.
+            </p>
+        </section>
+        {% endblock %}
     </main>
 
     <footer>
-        <p>Proyecto final – Control de calidad y predicción con ML</p>
+        <p>Kawsa Viva - Innovación y Sabor (2025)</p>
     </footer>
 </body>
 </html>
