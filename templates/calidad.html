@@ -1,39 +1,32 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block content %}
 <h2>Control de Calidad del Puré</h2>
 <p>Usa la cámara para analizar si la yuca o el camote está en buenas condiciones para hacer el puré.</p>
 
-<!-- Selector de cámara -->
-<label for="listaCamaras">Seleccionar cámara:</label>
-<select id="listaCamaras"></select>
+<label>Seleccionar cámara:</label>
+<select id="cameraSelect"></select>
 
 <br><br>
 
-<!-- Vista previa de cámara -->
-<video id="video" width="320" height="240" autoplay style="border:2px solid #000;"></video>
+<video id="video" width="300" height="250" autoplay></video>
+<br>
+<button id="snap">Tomar foto</button>
+
+<canvas id="canvas" width="300" height="250" style="display:none;"></canvas>
 
 <br><br>
 
-<!-- Tomar foto -->
-<button id="tomar" style="padding:8px 15px; background:#007bff; color:white;">Tomar foto</button>
+<img id="captured" width="300">
 
-<br><br>
+<form method="POST">
+    <input type="hidden" name="imagen" id="imagen">
+    <button type="submit">Enviar al modelo</button>
+</form>
 
-<!-- Imagen capturada -->
-<img id="foto" width="128" style="border:1px solid #444;">
+{% if resultado %}
+<h3>Resultado: {{ resultado }}</h3>
+{% endif %}
 
-<br><br>
-
-<!-- Enviar al modelo -->
-<button id="enviar" style="padding:8px 15px; background:#28a745; color:white;">Enviar al modelo</button>
-
-<br><br>
-
-<!-- Resultado -->
-<div id="output" style="font-size:22px; font-weight:bold;"></div>
-
-<!-- Archivo JS -->
 <script src="{{ url_for('static', filename='js/camara.js') }}"></script>
-
 {% endblock %}

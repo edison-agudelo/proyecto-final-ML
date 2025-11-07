@@ -1,51 +1,59 @@
 let video = document.getElementById("video");
-let foto = document.getElementById("foto");
-let tomar = document.getElementById("tomar");
-let enviar = document.getElementById("enviar");
-let output = document.getElementById("output");
-let selector = document.getElementById("listaCamaras");
+let canvas = document.getElementById("canvas");
+let capturedImg = document.getElementById("captured");
+let imageField = document.getElementById("imagen");
+let cameraSelect = document.getElementById("cameraSelect");
+let currentStream;
 
-navigator.mediaDevices.enumerateDevices().then(dispositivos => {
-    dispositivos.forEach(d => {
-        if (d.kind === "videoinput") {
-            let opcion = document.createElement("option");
-            opcion.value = d.deviceId;
-            opcion.text = d.label || "Cámara " + (selector.length + 1);
-            selector.appendChild(opcion);
+// Listar cámaras disponibles
+async function listarCamaras() {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    cameraSelect.innerHTML = ""; // limpiar lista
+
+    devices.forEach(device => {
+        if (device.kind === "videoinput") {
+            let option = document.createElement("option");
+            option.value = device.deviceId;
+            option.text = device.label || `Cámara ${cameraSelect.length + 1}`;
+            cameraSelect.appendChild(option);
         }
     });
-    iniciarCamara(selector.value);
-});
 
-selector.onchange = () => iniciarCamara(selector.value);
-
-function iniciarCamara(deviceId) {
-    navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: deviceId } }
-    }).then(stream => {
-        video.srcObject = stream;
-        video.play();
-    }).catch(err => {
-        alert("Error al acceder a la cámara: " + err);
-    });
+    iniciarCamara();
 }
 
-tomar.onclick = () => {
-    let canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    canvas.getContext("2d").drawImage(video, 0, 0, 128, 128);
-    foto.src = canvas.toDataURL("image/png");
-};
+// Iniciar cámara seleccionada
+async function iniciarCamara() {
+    if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+    }
 
-enviar.onclick = () => {
-    fetch("/calidad", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imagen: foto.src })
-    })
-    .then(res => res.json())
-    .then(data => {
-        output.innerHTML = `<h2>${data.resultado}</h2>`;
-    });
-};
+    let cameraId = cameraSelect.value;
+
+    try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+            video: { deviceId: cameraId ? { exact: cameraId } : undefined }
+        });
+
+        video.srcObject = currentStream;
+    } catch (error) {
+        alert("⚠ Error al acceder a la cámara: " + error.message);
+    }
+}
+
+// Tomar foto
+document.getElementById("snap").addEventListener("click", function () {
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+    let imageData = canvas.toDataURL("image/png");
+    capturedImg.src = imageData;
+    imageField.value = imageData; // Se envía al backend
+});
+
+// Cambiar cámara cuando el usuario selecciona otra
+cameraSelect.addEventListener("change", iniciarCamara);
+
+// Iniciar todo
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(listarCamaras)
+    .catch(err => alert("No se pudo acceder a la cámara: " + err.message));
+
