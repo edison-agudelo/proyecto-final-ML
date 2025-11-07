@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
     <header>
         <h1>Puré Inteligente con Machine Learning</h1>
-        <a href="{{ url_for('prediccion') }}">Predicción</a>
->
+
+        <nav>
+            <a href="{{ url_for('prediccion') }}">Predicción</a>
             <a href="{{ url_for('catalogo') }}">Catálogo</a>
+            <a href="{{ url_for('calidad') }}">Control de Calidad</a>
+
             {% if session.get('logueado') %}
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('logout') }}">Cerrar sesión</a>
@@ -31,11 +35,13 @@
                 </div>
             {% endif %}
         {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
 
     <footer>
         <p>Proyecto final – Control de calidad y predicción con ML</p>
     </footer>
+
 </body>
 </html>
