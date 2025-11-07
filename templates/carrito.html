@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>🛒 Carrito de Compras</h2>
+
+{% if productos %}
+    <table class="tabla-carrito">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio unitario</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in productos %}
+                <tr>
+                    <td>{{ item.nombre }}</td>
+                    <td>${{ item.precio }}</td>
+                    <td>{{ item.cantidad }}</td>
+                    <td>${{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3 class="total">Total a pagar: <strong>${{ total }}</strong></h3>
+
+    <div class="acciones-carrito">
+        <a href="{{ url_for('catalogo') }}" class="btn-volver">⬅️ Seguir comprando</a>
+        <a href="{{ url_for('pedido_desde_carrito') }}" class="btn-pedido">⚡ Realizar pedido</a>
+    </div>
+{% else %}
+    <p class="carrito-vacio">🧺 Tu carrito está vacío.</p>
+    <a href="{{ url_for('catalogo') }}" class="btn-volver">Ver catálogo</a>
+{% endif %}
+
+<style>
+    h2 {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 1.8rem;
+        color: #333;
+        font-weight: bold;
+    }
+    .tabla-carrito {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .tabla-carrito th, .tabla-carrito td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .tabla-carrito th {
+        background-color: #f9fafb;
+        font-weight: bold;
+        color: #555;
+    }
+    .total {
+        text-align: right;
+        margin-right: 8%;
+        font-size: 1.4rem;
+        color: #444;
+    }
+    .acciones-carrito {
+        display: flex;
+        justify-content: space-between;
+        width: 90%;
+        margin: 30px auto 50px;
+    }
+    .btn-volver, .btn-pedido {
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .btn-volver {
+        background-color: #e5e7eb;
+        color: #111827;
+    }
+    .btn-volver:hover {
+        background-color: #d1d5db;
+    }
+    .btn-pedido {
+        background-color: #10b981;
+        color: #fff;
+    }
+    .btn-pedido:hover {
+        background-color: #059669;
+    }
+    .carrito-vacio {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 1.2rem;
+        color: #6b7280;
+    }
+</style>
+
+{% endblock %}

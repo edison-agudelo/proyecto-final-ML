@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Inicio de Sesión (Admin)</h2>
-<form method="POST">
-    <label>Usuario:</label>
-    <input type="text" name="usuario" required>
 
-    <label>Contraseña:</label>
-    <input type="password" name="contrasena" required>
+<div class="login-container">
+    <h2>🔐 Acceso Administrador</h2>
+    <p class="subtitle">Bienvenido. Inicio de sesión requerido para gestión interna.</p>
 
-    <button type="submit">Ingresar</button>
-</form>
+    <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" name="usuario" class="input-login" placeholder="Ingrese su usuario" required>
+
+        <label for="contrasena">Contraseña</label>
+        <input type="password" id="contrasena" name="contrasena" class="input-login" placeholder="Ingrese su contraseña" required>
+
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
+    </form>
+
+    <p class="hint">⚠️ Solo personal autorizado</p>
+</div>
+
 {% endblock %}

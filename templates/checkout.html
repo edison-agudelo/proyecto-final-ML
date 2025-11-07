@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Confirmar pedido</h2>
+
+<form method="POST" class="form-agregar" style="max-width: 480px;">
+  <label>Nombre:</label>
+  <input type="text" name="nombre" required>
+
+  <label>Teléfono:</label>
+  <input type="text" name="telefono" required>
+
+  <label>Correo (opcional):</label>
+  <input type="email" name="email">
+
+  <p style="margin-top:10px; font-weight:600;">Total a pagar: ${{ '%.2f'|format(total) }}</p>
+
+  <button type="submit" class="btn-pedido">Enviar pedido por WhatsApp</button>
+</form>
+
+{% endblock %}

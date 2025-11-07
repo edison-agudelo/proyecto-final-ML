@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🧾 Confirmar Pedido</h2>
+
+<table class="tabla-pedido">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Precio unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in productos %}
+        <tr>
+            <td>{{ item.nombre }}</td>
+            <td>${{ item.precio }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Total: <strong>${{ total }}</strong></h3>
+
+<form method="POST" class="pedido-form">
+    <label>Nombre Completo:</label>
+    <input type="text" name="nombre" placeholder="Ingresa tu nombre" required>
+
+    <label>Correo electrónico:</label>
+    <input type="email" name="email" placeholder="Ingresa tu email" required>
+
+    <label>Teléfono:</label>
+    <input type="text" name="telefono" placeholder="Tu número de contacto" required>
+
+    <button type="submit" class="btn-pedido">📲 Realizar pedido y enviar por WhatsApp</button>
+</form>
+
+<style>
+    .tabla-pedido {
+        width: 100%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .tabla-pedido th, .tabla-pedido td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+    .tabla-pedido th {
+        background-color: #f9f9f9;
+        color: #333;
+    }
+    .pedido-form {
+        width: 100%;
+        max-width: 500px;
+        margin: 30px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .pedido-form input {
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    .btn-pedido {
+        width: 100%;
+        padding: 12px;
+        background-color: #1a8917;
+        color: white;
+        font-size: 1rem;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .btn-pedido:hover {
+        background-color: #156d13;
+    }
+</style>
+{% endblock %}

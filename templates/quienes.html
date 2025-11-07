@@ -1,101 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title if title else "Kawsa Viva - Innovación Alimentaria" }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Kawsa Viva</h1>
-        <nav>
-            <!-- 🔹 Botones principales -->
-            <a href="{{ url_for('inicio') }}">Inicio</a>
-            <a href="#quienes-somos">Quiénes Somos</a>
-            <a href="{{ url_for('catalogo') }}">Catálogo</a>
+{% extends "base.html" %}
+{% block content %}
 
-            {% if session.get('logueado') %}
-                <a href="{{ url_for('dashboard') }}">Administrador</a>
-                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-            {% else %}
-                <a href="{{ url_for('login') }}">Administrador</a>
-            {% endif %}
-        </nav>
-    </header>
+<!-- ============================= -->
+<!-- 🌱 SECCIÓN INSTITUCIONAL -->
+<!-- ============================= -->
+<section class="empresa-info" id="quienes-somos">
+    <h2>Sobre Kawsa Viva</h2>
+    <p>
+        <strong>Kawsa Viva</strong> es un emprendimiento ecuatoriano que combina innovación alimentaria,
+        sostenibilidad ambiental y tecnología de conservación para ofrecer un producto único:
+        <em>puré liofilizado de yuca y camote</em>. Nuestro propósito es facilitar una alimentación
+        saludable, práctica y responsable con el entorno.
+    </p>
 
-    <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert-container">
-                    {% for category, message in messages %}
-                        <div class="alert {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}
-        <!-- ============================= -->
-        <!-- 🌱 SECCIÓN INSTITUCIONAL -->
-        <!-- ============================= -->
-        <section class="empresa-info" id="quienes-somos">
-            <h2>Sobre Kawsa Viva</h2>
-            <p>
-                <strong>Kawsa Viva</strong> es un emprendimiento ecuatoriano que combina innovación alimentaria,
-                sostenibilidad ambiental y tecnología de conservación para ofrecer un producto único:
-                <em>puré liofilizado de yuca y camote</em>. Nuestro propósito es facilitar una alimentación
-                saludable, práctica y responsable con el entorno.
-            </p>
+    <h3>Misión</h3>
+    <p>
+        Producir y comercializar alimentos tradicionales ecuatorianos liofilizados de alta calidad,
+        ofreciendo soluciones prácticas y sostenibles para hogares, viajeros y negocios gastronómicos,
+        promoviendo el consumo responsable, la nutrición y el desarrollo de comunidades locales.
+    </p>
 
-            <h3>Misión</h3>
-            <p>
-                Producir y comercializar alimentos tradicionales ecuatorianos liofilizados de alta calidad,
-                ofreciendo soluciones prácticas y sostenibles para hogares, viajeros y negocios gastronómicos,
-                promoviendo el consumo responsable, la nutrición y el desarrollo de comunidades locales.
-            </p>
+    <h3>Visión</h3>
+    <p>
+        Ser una empresa referente a nivel nacional en innovación alimentaria con identidad ecuatoriana,
+        reconocida por su compromiso con la sostenibilidad, la salud y el bienestar social.
+    </p>
 
-            <h3>Visión</h3>
-            <p>
-                Ser una empresa referente a nivel nacional en innovación alimentaria con identidad ecuatoriana,
-                reconocida por su compromiso con la sostenibilidad, la salud y el bienestar social.
-            </p>
+    <h3>Valores</h3>
+    <ul>
+        <li>Compromiso</li>
+        <li>Responsabilidad social y ambiental</li>
+        <li>Innovación</li>
+        <li>Respeto a lo natural</li>
+        <li>Colaboración</li>
+    </ul>
 
-            <h3>Valores</h3>
-            <ul>
-                <li>Compromiso</li>
-                <li>Responsabilidad social y ambiental</li>
-                <li>Innovación</li>
-                <li>Respeto a lo natural</li>
-                <li>Colaboración</li>
-            </ul>
+    <h3>Slogan</h3>
+    <p><em>"Vida en cada cucharada, futuro en cada residuo"</em></p>
 
-            <h3>Slogan</h3>
-            <p><em>"Vida en cada cucharada, futuro en cada residuo"</em></p>
+    <h3>Filosofía empresarial</h3>
+    <p>
+        En Kawsa Viva creemos que la alimentación puede ser un puente entre la salud y la sostenibilidad.
+        Promovemos una cultura organizacional basada en la ética, el trabajo colaborativo y la conciencia
+        ecológica, impulsando el desarrollo local mediante productos innovadores y biodegradables.
+    </p>
 
-            <h3>Filosofía empresarial</h3>
-            <p>
-                En Kawsa Viva creemos que la alimentación puede ser un puente entre la salud y la sostenibilidad.
-                Promovemos una cultura organizacional basada en la ética, el trabajo colaborativo y la conciencia
-                ecológica, impulsando el desarrollo local mediante productos innovadores y biodegradables.
-            </p>
+    <div class="color-palette">
+        <h4>Paleta de colores corporativos</h4>
+        <ul>
+            <li>Beige: naturalidad y cercanía</li>
+            <li>Verde oscuro: equilibrio y confianza ecológica</li>
+            <li>Naranja quemado: energía y vitalidad</li>
+            <li>Marrón oliva: autenticidad y trabajo artesanal</li>
+            <li>Verde agua: frescura y salud</li>
+        </ul>
+    </div>
+</section>
 
-            <div class="color-palette">
-                <h4>Paleta de colores corporativos</h4>
-                <ul>
-                    <li>Beige: naturalidad y cercanía</li>
-                    <li>Verde oscuro: equilibrio y confianza ecológica</li>
-                    <li>Naranja quemado: energía y vitalidad</li>
-                    <li>Marrón oliva: autenticidad y trabajo artesanal</li>
-                    <li>Verde agua: frescura y salud</li>
-                </ul>
-            </div>
-        </section>
-        {% endblock %}
-    </main>
-
-    <footer>
-        <p>Kawsa Viva - Innovación y Sabor (2025)</p>
-    </footer>
-</body>
-</html>
+{% endblock %}

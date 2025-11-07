@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- 🔹 Hero principal -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Bienvenido a Kawsa Viva</h1>
+        <p>
+            En Kawsa Viva, creemos en la riqueza de nuestras raíces y en la importancia de cuidar del medio ambiente mientras compartimos sabores auténticos y nutritivos.
+        </p>
+        <p>
+            Cada uno de nuestros productos refleja un enfoque consciente y responsable, donde la tradición se combina con la tecnología.
+        </p>
+        <p>
+            Te invitamos a conocer nuestros productos elaborados con yuca y camote, cultivados con respeto por la tierra.
+        </p>
+    </div>
+</section>
+
+<!-- 🔹 Productos destacados -->
+<section class="destacados">
+    <h2>Productos Destacados</h2>
+
+    <div class="catalogo">
+        {% for p in productos[:3] %}
+            <div class="producto">
+                <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
+                <h3>{{ p['nombre'] }}</h3>
+                <p><strong>${{ p['precio'] }}</strong></p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="boton-pedido">
+        <a href="{{ url_for('catalogo') }}" class="btn-pedido">Ver catálogo completo</a>
+    </div>
+</section>
+
+{% endblock %}

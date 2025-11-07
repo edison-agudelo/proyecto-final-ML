@@ -6,6 +6,9 @@
     <label>Nombre del cliente:</label>
     <input type="text" name="nombre" placeholder="Tu nombre completo" required>
 
+    <label>Correo electrónico:</label>
+    <input type="email" name="email" placeholder="Tu correo electrónico" required>
+
     <label>Teléfono:</label>
     <input type="text" name="telefono" placeholder="Tu número de contacto" required>
 
@@ -13,7 +16,10 @@
     <select name="producto_id" id="productoSelect" required>
         <option value="">Seleccione un producto</option>
         {% for producto in productos %}
-            <option value="{{ producto.id }}" data-precio="{{ producto.precio }}" data-nombre="{{ producto.nombre }}">
+            <option value="{{ producto.id }}"
+                    data-precio="{{ producto.precio }}"
+                    data-nombre="{{ producto.nombre }}"
+                    {% if producto.id == producto_seleccionado %}selected{% endif %}>
                 {{ producto.nombre }} - ${{ producto.precio }}
             </option>
         {% endfor %}
@@ -36,7 +42,6 @@
     const cantidadInput = document.getElementById('cantidad');
     const precioInput = document.getElementById('precio');
     const totalInput = document.getElementById('total');
-    const form = document.getElementById('pedidoForm');
 
     function actualizarPrecioYTotal() {
         const opcion = productoSelect.options[productoSelect.selectedIndex];
@@ -48,6 +53,7 @@
         totalInput.value = total ? `$${total.toFixed(2)}` : '';
     }
 
+    actualizarPrecioYTotal();
     productoSelect.addEventListener('change', actualizarPrecioYTotal);
     cantidadInput.addEventListener('input', actualizarPrecioYTotal);
 </script>
