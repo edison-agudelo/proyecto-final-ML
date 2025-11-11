@@ -1,3 +1,54 @@
+# ==============================================
+# 🚫 ARCHIVOS Y CARPETAS QUE NO DEBEN SUBIRSE
+# ==============================================
+
+# 🧠 Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# 📦 Cache y compilados de Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# 🔥 Modelos de Machine Learning (pesados)
+*.h5
+*.pkl
+*.joblib
+*.hdf5
+
+# 🧩 Archivos temporales o locales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# 💾 Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# 🧪 Configuración de VSCode
+.vscode/
+
+# 🧠 Archivos generados por TensorFlow
+*.pb
+checkpoint
+*.ckpt*
+
+# 🧠 Datos de entrenamiento
+dataset/
+*.csv
+*.xlsx
+*.xls
+
+# 🐳 Archivos de entorno
+.env
+.env.*
+
+# 📄 Archivos de Render o pruebas locales
+instance/
+uploads/
+ml_models/__pycache__/
