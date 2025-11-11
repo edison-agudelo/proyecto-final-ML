@@ -19,36 +19,45 @@ __pycache__/
 *.pkl
 *.joblib
 *.hdf5
+*.tflite
+*.pb
+checkpoint
+*.ckpt*
 
-# 🧩 Archivos temporales o locales
-*.log
-*.tmp
-*.bak
-*.swp
+# 🧪 Datos de entrenamiento / resultados
+dataset/
+*.csv
+*.xlsx
+*.xls
+*.json
+*.npz
+*.npy
 
 # 💾 Archivos del sistema
 .DS_Store
 Thumbs.db
 
-# 🧪 Configuración de VSCode
+# 🧰 Configuración de VSCode y entorno local
 .vscode/
-
-# 🧠 Archivos generados por TensorFlow
-*.pb
-checkpoint
-*.ckpt*
-
-# 🧠 Datos de entrenamiento
-dataset/
-*.csv
-*.xlsx
-*.xls
-
-# 🐳 Archivos de entorno
+.idea/
 .env
 .env.*
-
-# 📄 Archivos de Render o pruebas locales
 instance/
 uploads/
 ml_models/__pycache__/
+
+# 🚀 Archivos de Render o temporales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# 🧩 Archivos de despliegue / compilación
+__pycache__/
+staticfiles/
+*.egg-info/
+*.spec
+
+# 🧱 Archivos de backups o pruebas locales
+*.old
+*.save

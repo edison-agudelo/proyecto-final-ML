@@ -1,39 +1,119 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- 🔹 Hero principal -->
-<section class="hero">
-    <div class="hero-content">
-        <h1>Bienvenido a Kawsa Viva</h1>
-        <p>
-            En Kawsa Viva, creemos en la riqueza de nuestras raíces y en la importancia de cuidar del medio ambiente mientras compartimos sabores auténticos y nutritivos.
-        </p>
-        <p>
-            Cada uno de nuestros productos refleja un enfoque consciente y responsable, donde la tradición se combina con la tecnología.
-        </p>
-        <p>
-            Te invitamos a conocer nuestros productos elaborados con yuca y camote, cultivados con respeto por la tierra.
-        </p>
-    </div>
-</section>
+<section class="inicio-container">
+    <h2>Bienvenido a Kawsa Viva</h2>
+    <p class="intro-text">
+        En Kawsa Viva, creemos en la riqueza de nuestras raíces y en la importancia de cuidar el medio ambiente mientras compartimos sabores auténticos y nutritivos.
+        <br>
+        Cada uno de nuestros productos refleja un enfoque consciente y responsable, donde la tradición se combina con la tecnología.
+    </p>
 
-<!-- 🔹 Productos destacados -->
-<section class="destacados">
-    <h2>Productos Destacados</h2>
-
-    <div class="catalogo">
-        {% for p in productos[:3] %}
-            <div class="producto">
-                <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
-                <h3>{{ p['nombre'] }}</h3>
-                <p><strong>${{ p['precio'] }}</strong></p>
-            </div>
+    <h3>Productos Destacados</h3>
+    <div class="productos-inicio">
+        {% for p in productos %}
+        <div class="producto-card">
+            <img src="{{ url_for('static', filename='img/' + p['imagen']) }}" alt="{{ p['nombre'] }}">
+            <h4>{{ p['nombre'] }}</h4>
+            <p class="precio">${{ '%.2f' | format(p['precio']) }}</p>
+        </div>
         {% endfor %}
     </div>
 
-    <div class="boton-pedido">
-        <a href="{{ url_for('catalogo') }}" class="btn-pedido">Ver catálogo completo</a>
+    <div class="btn-ver-catalogo">
+        <a href="{{ url_for('catalogo') }}">Ver catálogo completo</a>
     </div>
 </section>
+
+<style>
+/* =========================================================
+   🌿 SECCIÓN DE INICIO - PRODUCTOS DESTACADOS
+   ========================================================= */
+.inicio-container {
+    text-align: center;
+}
+
+.inicio-container h2 {
+    color: #004b23;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.intro-text {
+    color: #555;
+    max-width: 850px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   🔹 PRODUCTOS DESTACADOS (Tamaño optimizado)
+   ========================================================= */
+.productos-inicio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    justify-items: center;
+    margin-top: 25px;
+}
+
+.producto-card {
+    background: #fff;
+    border: 2px solid #004b23;
+    border-radius: 15px;
+    padding: 15px;
+    width: 230px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.producto-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+.producto-card img {
+    width: 100%;
+    height: 170px; /* 🔸 Ajuste más equilibrado */
+    object-fit: contain; /* Muestra la imagen completa sin recortar */
+    border-radius: 10px;
+    background-color: #f7f7f7;
+    padding: 8px;
+}
+
+.producto-card h4 {
+    font-size: 1rem;
+    color: #222;
+    margin: 8px 0 4px;
+}
+
+.producto-card .precio {
+    color: #004b23;
+    font-weight: bold;
+}
+
+/* =========================================================
+   🔹 BOTÓN FINAL
+   ========================================================= */
+.btn-ver-catalogo {
+    margin-top: 30px;
+}
+
+.btn-ver-catalogo a {
+    display: inline-block;
+    background-color: #004b23;
+    color: #fff;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-ver-catalogo a:hover {
+    background-color: #1f6f43;
+    transform: scale(1.05);
+}
+</style>
 
 {% endblock %}

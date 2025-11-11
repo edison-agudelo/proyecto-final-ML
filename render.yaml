@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: kawsa-viva
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: MYSQL_HOST
+        value: your-database-host
+      - key: MYSQL_USER
+        value: your-username
+      - key: MYSQL_PASSWORD
+        value: your-password
+      - key: MYSQL_DB
+        value: pure_ml

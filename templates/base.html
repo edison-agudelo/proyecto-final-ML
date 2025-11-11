@@ -4,97 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title if title else "Kawsa Viva - Innovación Alimentaria" }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <style>
         /* =========================================================
-           🔹 ESTILO GENERAL DEL ENCABEZADO
-           ========================================================= */
+           🎨 PALETA DE COLORES CORPORATIVA
+        ========================================================= */
+        :root {
+            --verde-oscuro: #003d1f;
+            --verde-principal: #004b23;
+            --verde-claro: #1f6f43;
+            --dorado: #b97a34;
+            --fondo-claro: #f7f3ef;
+            --marron-footer: #8b6f47;
+        }
+
+        body {
+            background-color: var(--fondo-claro);
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* =========================================================
+           🔹 ENCABEZADO CON DEGRADADO
+        ========================================================= */
         header {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            padding: 10px 40px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: linear-gradient(to bottom, var(--verde-claro), var(--verde-oscuro));
+            color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
         }
 
         header img.logo {
             position: absolute;
             left: 40px;
-            width: 4cm;
-            height: 4cm;
+            width: 4.5cm;
+            height: auto;
             object-fit: contain;
         }
 
         header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #004b23;
-            margin: 0;
+            font-size: 2.3rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             text-align: center;
+            margin: 0;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
         }
 
         /* =========================================================
            🔹 NAVBAR
-           ========================================================= */
+        ========================================================= */
         nav {
-            text-align: center;
-            background: #F6F6F6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
             padding: 12px 0;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
         nav a {
-            margin: 0 12px;
+            color: var(--verde-principal);
             text-decoration: none;
-            color: #333;
             font-weight: 600;
+            margin: 0 15px;
             transition: color 0.3s ease;
         }
 
         nav a:hover {
-            color: #b97a34;
+            color: var(--dorado);
         }
 
-        /* =========================================================
-           🔹 DROPDOWN ADMIN
-           ========================================================= */
+        /* 🔸 Dropdown */
         .dropdown {
-            display: inline-block;
             position: relative;
+            display: inline-block;
         }
 
         .dropbtn {
             background: none;
             border: none;
+            color: var(--verde-principal);
             font-weight: 600;
             cursor: pointer;
-            color: #333;
+            font-size: 1rem;
         }
 
         .dropdown-content {
             display: none;
             position: absolute;
-            background: white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             min-width: 180px;
-            right: 0;
             border-radius: 8px;
-            z-index: 10;
+            right: 0;
+            z-index: 5;
         }
 
         .dropdown-content a {
-            display: block;
-            padding: 10px;
-            text-decoration: none;
             color: #333;
+            text-decoration: none;
+            padding: 10px;
+            display: block;
+            font-weight: 500;
         }
 
         .dropdown-content a:hover {
-            background: #f1f1f1;
+            background-color: #f2f2f2;
         }
 
         .dropdown:hover .dropdown-content {
@@ -102,52 +126,82 @@
         }
 
         /* =========================================================
-           🔹 CONTENIDO
-           ========================================================= */
+           🔹 CONTENIDO PRINCIPAL
+        ========================================================= */
         main {
             min-height: 70vh;
-            padding: 20px;
+            padding: 30px;
+        }
+
+        .contenido-cartica {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 35px 45px;
+            margin: 30px auto;
+            max-width: 950px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            border-left: 6px solid var(--dorado);
+        }
+
+        .contenido-cartica h2 {
+            color: var(--verde-principal);
+            margin-top: 0;
+        }
+
+        .contenido-cartica p {
+            line-height: 1.7;
+            color: #444;
         }
 
         /* =========================================================
-           🔹 PIE DE PÁGINA CON LOGOS
-           ========================================================= */
+           🔹 PIE DE PÁGINA (DEGRADADO + RELIEVE)
+        ========================================================= */
         footer {
-            position: relative;
+            background: linear-gradient(to bottom, #a67c52 0%, var(--marron-footer) 100%);
+            color: #fff;
             text-align: center;
-            background-color: #f7f7f7;
-            color: #333;
-            padding: 30px 0 60px;
-            font-size: 0.95em;
-            border-top: 2px solid #ddd;
+            padding: 25px 0;
+            font-size: 0.95rem;
+            position: relative;
+            width: 100%;
+            margin-top: 40px;
+            box-shadow: inset 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        footer img.footer-logo {
-            width: 4cm;
-            height: 4cm;
-            position: absolute;
-            bottom: 5px;
-            object-fit: contain;
-            opacity: 0.95;
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
         }
 
-        footer img.footer-left {
-            left: 40px;
-        }
-
-        footer img.footer-right {
-            right: 40px;
-        }
-
-        footer p {
+        .footer-content p {
+            flex-grow: 1;
+            text-align: center;
             margin: 0;
             font-weight: 600;
-            color: #004b23;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .footer-logo {
+            width: 3.8cm;
+            height: 3.8cm;
+            object-fit: contain;
+            opacity: 0.97;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            transform: scale(1.08);
+            opacity: 1;
         }
 
         /* =========================================================
            🔹 ALERTAS
-           ========================================================= */
+        ========================================================= */
         .alert-container {
             max-width: 600px;
             margin: 10px auto;
@@ -156,15 +210,36 @@
 
         .alert {
             padding: 10px 20px;
-            margin-bottom: 10px;
             border-radius: 5px;
             display: inline-block;
+            margin-bottom: 10px;
         }
 
         .alert.success { background: #d4edda; color: #155724; }
         .alert.danger  { background: #f8d7da; color: #721c24; }
         .alert.info    { background: #d1ecf1; color: #0c5460; }
         .alert.warning { background: #fff3cd; color: #856404; }
+
+        /* =========================================================
+           📱 RESPONSIVE DESIGN
+        ========================================================= */
+        @media (max-width: 992px) {
+            header img.logo {
+                left: 20px;
+                width: 3.5cm;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .footer-logo {
+                width: 3cm;
+                height: 3cm;
+            }
+        }
     </style>
 </head>
 
@@ -172,21 +247,20 @@
 
     <!-- =========================================================
          🔹 ENCABEZADO
-         ========================================================= -->
+    ========================================================= -->
     <header>
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Kawsa Viva" class="logo">
         <h1>Kawsa Viva</h1>
     </header>
 
     <!-- =========================================================
-         🔹 NAVEGACIÓN
-         ========================================================= -->
+         🔹 NAVBAR
+    ========================================================= -->
     <nav>
         <a href="{{ url_for('inicio') }}">Inicio</a>
         <a href="{{ url_for('quienes') }}">Quiénes Somos</a>
         <a href="{{ url_for('catalogo') }}">Catálogo</a>
         <a href="{{ url_for('prediccion') }}">Control de Calidad</a>
-
 
         {% if session.get('logueado') %}
         <div class="dropdown">
@@ -203,8 +277,8 @@
     </nav>
 
     <!-- =========================================================
-         🔹 CONTENIDO DINÁMICO
-         ========================================================= -->
+         🔹 CONTENIDO PRINCIPAL
+    ========================================================= -->
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -216,16 +290,20 @@
             {% endif %}
         {% endwith %}
 
-        {% block content %}{% endblock %}
+        <div class="contenido-cartica">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <!-- =========================================================
          🔹 PIE DE PÁGINA
-         ========================================================= -->
+    ========================================================= -->
     <footer>
-        <img src="{{ url_for('static', filename='img/UNL.png') }}" alt="Logo UNL" class="footer-logo footer-left">
-        <p>Kawsa Viva - Innovación y Sabor (2025)</p>
-        <img src="{{ url_for('static', filename='img/ucun.png') }}" alt="Logo UCUN" class="footer-logo footer-right">
+        <div class="footer-content">
+            <img src="{{ url_for('static', filename='img/UNL.png') }}" alt="Logo UNL" class="footer-logo">
+            <p>Kawsa Viva - Innovación y Sabor (2025)</p>
+            <img src="{{ url_for('static', filename='img/ucun.png') }}" alt="Logo UCUN" class="footer-logo">
+        </div>
     </footer>
 
 </body>

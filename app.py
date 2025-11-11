@@ -1,6 +1,7 @@
 import os
 import base64
 import pickle
+import json
 import numpy as np
 from io import BytesIO
 from PIL import Image
@@ -32,6 +33,7 @@ mysql = MySQL(app)
 UPLOAD_FOLDER = os.path.join('static', 'img')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -120,7 +122,14 @@ def dashboard():
     pedidos = cur.fetchall()
     cur.close()
 
-    return render_template('dashboard.html', productos=productos, pedidos=pedidos)
+    # 📊 Leer métricas del modelo CNN
+    metrics_path = os.path.join('ml_models', 'training_metrics.json')
+    metrics = {}
+    if os.path.exists(metrics_path):
+        with open(metrics_path, 'r') as f:
+            metrics = json.load(f)
+
+    return render_template('dashboard.html', productos=productos, pedidos=pedidos, metrics=metrics)
 
 
 # =======================================================
@@ -338,8 +347,9 @@ def prediccion():
                     img = img.resize((128, 128))
                     img_array = np.array(img) / 255.0
                     img_array = np.expand_dims(img_array, axis=0)
-                    prediccion = float(cnn_model.predict(img_array)[0][0])
-                    resultado_cnn = "✅ Buena calidad" if prediccion >= 0.5 else "❌ Mala calidad"
+                    prediccion = cnn_model.predict(img_array)
+                    clase = np.argmax(prediccion)
+                    resultado_cnn = f"✅ Clase predicha: {clase}"
                 except Exception as e:
                     resultado_cnn = f"⚠ Error procesando imagen: {e}"
 
