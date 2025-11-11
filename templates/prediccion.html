@@ -1,25 +1,179 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Predicción de Tiempo de Cocción</h2>
 
-<form method="POST">
-    <label>Tipo:</label>
-    <select name="tipo_camote" required>
-        <option value="0">Yuca</option>
-        <option value="1">Camote anaranjado</option>
-    </select>
+<h2 class="titulo-prediccion">🤖 Panel de Predicción y Control de Calidad (Administrador)</h2>
 
-    <label>Humedad (%):</label>
-    <input type="number" name="humedad" required>
+<p class="descripcion">
+    En este módulo se integran las funciones de <strong>predicción de rendimiento</strong> (modelo de regresión)
+    y el <strong>análisis de calidad visual</strong> mediante red neuronal convolucional (CNN).
+</p>
 
-    <label>Tamaño del lote (kg):</label>
-    <input type="number" name="tamano_lote" required>
+<!-- ======================================================= -->
+<!-- 🔹 SECCIÓN 1: MODELO DE REGRESIÓN -->
+<!-- ======================================================= -->
+<section class="seccion-modelo">
+    <h3>📈 Predicción de rendimiento</h3>
 
-    <button type="submit">Predecir</button>
-</form>
+    <form method="POST" action="{{ url_for('prediccion') }}" class="form-prediccion">
+        <input type="hidden" name="tipo" value="regresion">
 
-{% if resultado %}
-    <h3>Tiempo estimado de cocción: {{ resultado }} minutos</h3>
-{% endif %}
+        <label for="tipo_camote">Tipo (1 = Camote, 2 = Yuca):</label>
+        <input type="number" name="tipo_camote" step="1" min="1" max="2" placeholder="Ej: 1" required>
+
+        <label for="humedad">Nivel de humedad (%):</label>
+        <input type="number" step="0.01" name="humedad" placeholder="Ej: 65.5" required>
+
+        <label for="tamano_lote">Tamaño del lote (kg):</label>
+        <input type="number" step="0.01" name="tamano_lote" placeholder="Ej: 50.0" required>
+
+        <button type="submit" class="btn-prediccion">Calcular predicción</button>
+    </form>
+
+    {% if resultado_regresion is not none %}
+    <div class="resultado-prediccion">
+        <h4>📊 Resultado de la predicción:</h4>
+        <p><strong>{{ resultado_regresion }}</strong> unidades esperadas.</p>
+    </div>
+    {% endif %}
+</section>
+
+
+<!-- ======================================================= -->
+<!-- 🔹 SECCIÓN 2: MODELO CNN (CÁMARA) -->
+<!-- ======================================================= -->
+<section class="seccion-modelo">
+    <h3>📷 Control de calidad visual</h3>
+
+    <p>Activa la cámara para capturar una imagen y evaluar la calidad del producto.</p>
+
+    <div class="preview-container">
+        <img id="captured" width="300" style="margin-top:10px; border-radius:10px;">
+    </div>
+
+    <form method="POST" action="{{ url_for('prediccion') }}">
+        <input type="hidden" name="tipo" value="cnn">
+        <input type="hidden" name="imagen" id="imagen">
+        <button type="button" class="btn-prediccion" onclick="iniciarCamara()">📸 Abrir cámara</button>
+        <button type="submit" class="btn-prediccion">Analizar imagen</button>
+    </form>
+
+    {% if resultado_cnn %}
+    <div class="resultado-prediccion">
+        <h4>📋 Resultado del análisis de calidad:</h4>
+        <p><strong>{{ resultado_cnn }}</strong></p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- ======================================================= -->
+<!-- 🎥 SCRIPTS -->
+<!-- ======================================================= -->
+<script src="{{ url_for('static', filename='js/camara.js') }}"></script>
+
+<!-- ======================================================= -->
+<!-- 🔹 ESTILOS -->
+<!-- ======================================================= -->
+<style>
+    .titulo-prediccion {
+        text-align: center;
+        color: #004b23;
+        margin-bottom: 10px;
+        font-size: 1.8rem;
+    }
+
+    .descripcion {
+        text-align: center;
+        color: #444;
+        margin-bottom: 25px;
+        font-size: 1rem;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .seccion-modelo {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px 35px;
+        margin: 30px auto;
+        max-width: 600px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .seccion-modelo h3 {
+        color: #004b23;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .form-prediccion {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-prediccion label {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .form-prediccion input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .btn-prediccion {
+        background-color: #004b23;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .btn-prediccion:hover {
+        background-color: #1f6f43;
+    }
+
+    .resultado-prediccion {
+        margin: 25px auto 10px;
+        text-align: center;
+        background: #f9f9f9;
+        border-left: 5px solid #004b23;
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 500px;
+        color: #222;
+    }
+
+    .resultado-prediccion h4 {
+        margin-bottom: 8px;
+        color: #004b23;
+    }
+
+    .preview-container {
+        text-align: center;
+    }
+</style>
+
+<!-- ======================================================= -->
+<!-- 📸 MODAL DE CÁMARA -->
+<!-- ======================================================= -->
+<div id="cameraModal" class="camera-modal">
+    <div class="modal-content">
+        <h3>📷 Captura de imagen</h3>
+        <select id="cameraSelect"></select><br><br>
+        <video id="video" width="480" height="360" autoplay></video><br>
+        <button id="snap" class="btn-prediccion">Tomar foto</button><br><br>
+        <button id="closeModal" class="btn-cerrar">Cerrar</button>
+        <canvas id="canvas" width="480" height="360" style="display:none;"></canvas>
+    </div>
+</div>
+
 {% endblock %}
- 

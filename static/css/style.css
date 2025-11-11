@@ -1,6 +1,6 @@
-/* ============================
-   🌿 ESTILOS GENERALES
-   ============================ */
+/* ============================================================
+   🌿 ESTILO GLOBAL - Kawsa Viva (2025)
+   ============================================================ */
 body {
     font-family: 'Poppins', Arial, sans-serif;
     background-color: #f9f7f3; /* Beige natural */
@@ -15,124 +15,144 @@ main {
     margin: 0 auto;
 }
 
-/* ============================
-   🌿 ENCABEZADO Y NAV
-   ============================ */
+/* ============================================================
+   🔹 ENCABEZADO Y NAV
+   ============================================================ */
 header {
-    background: #004b23; /* Verde oscuro */
-    color: #fff;
+    background-color: #ffffff;
+    color: #004b23;
     text-align: center;
-    padding: 1.5rem 0;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    padding: 1.2rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 header h1 {
     margin: 0;
     font-size: 2rem;
+    font-weight: 700;
+}
+
+nav {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 nav a {
-    color: #ffb347; /* Naranja quemado */
+    color: #004b23;
     text-decoration: none;
-    margin: 0 1rem;
-    font-weight: bold;
+    margin: 0 12px;
+    font-weight: 600;
     transition: color 0.3s ease;
 }
 
 nav a:hover {
-    color: #d38933;
+    color: #b97a34; /* Naranja quemado */
 }
 
-.dropdown {
-    position: relative;
+/* ============================================================
+   🔹 BOTONES UNIVERSALES
+   ============================================================ */
+.btn-pedido,
+.btn-agregar,
+.btn-login,
+.btn-prediccion {
     display: inline-block;
-}
-
-.dropbtn {
-    background: none;
-    border: none;
-    color: #ffb347;
+    background-color: #004b23;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 25px;
     font-weight: bold;
+    text-decoration: none;
+    border: none;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 160px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: #004b23;
-    padding: 10px;
-    text-decoration: none;
-    font-size: 0.95rem;
-    display: block;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* ============================
-   🌿 BOTÓN GENERAL
-   ============================ */
-.btn-pedido {
-    display: inline-block;
-    background-color: #b97a34;
-    color: white;
-    font-size: 1rem;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: 0.3s ease;
-    border: none;
-}
-
-.btn-pedido:hover {
-    background-color: #8c5b26;
+.btn-pedido:hover,
+.btn-agregar:hover,
+.btn-login:hover,
+.btn-prediccion:hover {
+    background-color: #1f6f43;
     transform: scale(1.05);
 }
 
-/* ============================
-   🧾 ALERTAS
-   ============================ */
+/* ============================================================
+   🔹 ALERTAS
+   ============================================================ */
 .alert {
-    padding: 10px 15px;
+    padding: 10px 20px;
     border-radius: 8px;
     margin: 10px 0;
     text-align: center;
     display: inline-block;
 }
 
-.alert.success {
-    background-color: #228b22;
-    color: white;
+.alert.success { background-color: #d4edda; color: #155724; }
+.alert.danger  { background-color: #f8d7da; color: #721c24; }
+.alert.info    { background-color: #d1ecf1; color: #0c5460; }
+.alert.warning { background-color: #fff3cd; color: #856404; }
+
+/* ============================================================
+   🔹 FORMULARIOS GENERALES
+   ============================================================ */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.alert.danger {
-    background-color: #b22222;
-    color: white;
+input, select, textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
 }
 
-.alert.info {
-    background-color: #17a2b8;
-    color: white;
+input:focus, select:focus, textarea:focus {
+    border-color: #004b23;
+    box-shadow: 0 0 3px rgba(0,75,35,0.3);
 }
 
-/* ============================
-   📦 CATÁLOGO
-   ============================ */
+/* ============================================================
+   🔹 TABLAS (Catálogo, Dashboard, Carrito)
+   ============================================================ */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #004b23;
+    color: #fff;
+}
+
+tr:hover td {
+    background-color: #f1f8f4;
+}
+
+/* ============================================================
+   🔹 PRODUCTOS / CATÁLOGO
+   ============================================================ */
 .catalogo {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 25px;
     justify-items: center;
+    margin-top: 20px;
 }
 
 .producto {
@@ -147,7 +167,7 @@ nav a:hover {
 }
 
 .producto:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
 }
 
 .producto img {
@@ -157,23 +177,9 @@ nav a:hover {
     object-fit: cover;
 }
 
-.btn-agregar {
-    background-color: #228b22;
-    color: #fff;
-    padding: 10px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    border: none;
-    font-weight: bold;
-}
-
-.btn-agregar:hover {
-    background-color: #1a6e1a;
-}
-
-/* ============================
-   🧺 TABLA DEL CARRITO
-   ============================ */
+/* ============================================================
+   🔹 CARRITO DE COMPRAS
+   ============================================================ */
 .tabla-carrito {
     width: 90%;
     margin: 1rem auto;
@@ -193,9 +199,9 @@ nav a:hover {
     color: #333;
 }
 
-/* ============================
-   🔧 PANEL ADMIN
-   ============================ */
+/* ============================================================
+   🔹 DASHBOARD ADMIN
+   ============================================================ */
 .tabla-admin {
     display: flex;
     justify-content: flex-start;
@@ -228,60 +234,94 @@ nav a:hover {
     border-bottom: 1px solid #ddd;
 }
 
-.tabla-productos input,
-.tabla-productos select {
-    padding: 6px;
-    border-radius: 6px;
-    border: 1px solid #bbb;
-    width: 100%;
-}
-
-.btn-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: 0.2s ease;
-    margin: 2px;
-}
-
-.btn-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-}
-
-.btn-success {
-    background-color: #228b22;
-    color: white;
-}
-
-.btn-success:hover {
-    background-color: #1a6e1a;
-}
-
-.btn-danger {
-    background-color: #b22222;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #8b0000;
-}
-
-/* ============================
-   🌿 PIE DE PÁGINA
-   ============================ */
+/* ============================================================
+   🔹 PIE DE PÁGINA
+   ============================================================ */
 footer {
     background: #8b6f47;
     color: #fff;
     text-align: center;
     padding: 12px 0;
-    position: fixed;
+    position: relative;
     bottom: 0;
     width: 100%;
+    font-size: 0.95rem;
+}
+
+footer p {
+    margin: 0;
+    font-weight: 600;
+}
+
+footer img.footer-logo {
+    opacity: 0.9;
+    transition: transform 0.3s ease;
+}
+
+footer img.footer-logo:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================================
+   🔹 LOGIN / PANEL ADMIN / PREDICCIÓN
+   ============================================================ */
+.login-container, .form-agregar {
+    background: #fff;
+    border-radius: 15px;
+    padding: 25px 35px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    max-width: 500px;
+    margin: 40px auto;
+}
+
+.login-container h2 {
+    text-align: center;
+    color: #004b23;
+}
+
+.input-login {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.btn-login {
+    width: 100%;
+    background-color: #004b23;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #1f6f43;
+}
+
+/* ============================================================
+   🔹 RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    header img.logo {
+        width: 3cm;
+        height: 3cm;
+    }
+
+    footer img.footer-logo {
+        width: 3cm;
+        height: 3cm;
+    }
+
+    nav a {
+        display: inline-block;
+        margin: 6px;
+    }
+
+    main {
+        padding: 1rem;
+    }
 }

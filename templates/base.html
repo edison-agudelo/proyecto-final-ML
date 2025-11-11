@@ -3,53 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kawsa Viva - Innovación Alimentaria</title>
+    <title>{{ title if title else "Kawsa Viva - Innovación Alimentaria" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =========================================================
+           🔹 ESTILO GENERAL DEL ENCABEZADO
+           ========================================================= */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 10px 40px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header img.logo {
+            position: absolute;
+            left: 40px;
+            width: 4cm;
+            height: 4cm;
+            object-fit: contain;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #004b23;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* =========================================================
+           🔹 NAVBAR
+           ========================================================= */
+        nav {
+            text-align: center;
+            background: #F6F6F6;
+            padding: 12px 0;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        nav a {
+            margin: 0 12px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #b97a34;
+        }
+
+        /* =========================================================
+           🔹 DROPDOWN ADMIN
+           ========================================================= */
+        .dropdown {
+            display: inline-block;
+            position: relative;
+        }
+
+        .dropbtn {
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            min-width: 180px;
+            right: 0;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .dropdown-content a:hover {
+            background: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* =========================================================
+           🔹 CONTENIDO
+           ========================================================= */
+        main {
+            min-height: 70vh;
+            padding: 20px;
+        }
+
+        /* =========================================================
+           🔹 PIE DE PÁGINA CON LOGOS
+           ========================================================= */
+        footer {
+            position: relative;
+            text-align: center;
+            background-color: #f7f7f7;
+            color: #333;
+            padding: 30px 0 60px;
+            font-size: 0.95em;
+            border-top: 2px solid #ddd;
+        }
+
+        footer img.footer-logo {
+            width: 4cm;
+            height: 4cm;
+            position: absolute;
+            bottom: 5px;
+            object-fit: contain;
+            opacity: 0.95;
+        }
+
+        footer img.footer-left {
+            left: 40px;
+        }
+
+        footer img.footer-right {
+            right: 40px;
+        }
+
+        footer p {
+            margin: 0;
+            font-weight: 600;
+            color: #004b23;
+        }
+
+        /* =========================================================
+           🔹 ALERTAS
+           ========================================================= */
+        .alert-container {
+            max-width: 600px;
+            margin: 10px auto;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .alert.success { background: #d4edda; color: #155724; }
+        .alert.danger  { background: #f8d7da; color: #721c24; }
+        .alert.info    { background: #d1ecf1; color: #0c5460; }
+        .alert.warning { background: #fff3cd; color: #856404; }
+    </style>
 </head>
+
 <body>
-<header>
-    <h1>Kawsa Viva</h1>
+
+    <!-- =========================================================
+         🔹 ENCABEZADO
+         ========================================================= -->
+    <header>
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Kawsa Viva" class="logo">
+        <h1>Kawsa Viva</h1>
+    </header>
+
+    <!-- =========================================================
+         🔹 NAVEGACIÓN
+         ========================================================= -->
     <nav>
         <a href="{{ url_for('inicio') }}">Inicio</a>
         <a href="{{ url_for('quienes') }}">Quiénes Somos</a>
         <a href="{{ url_for('catalogo') }}">Catálogo</a>
+        <a href="{{ url_for('prediccion') }}">Control de Calidad</a>
 
-        <!-- 🛒 Carrito con contador dinámico -->
-        <a href="{{ url_for('carrito') }}">
-            🧺 Carrito ({{ (session.get('cart') or {})|length }})
-        </a>
 
         {% if session.get('logueado') %}
-            <div class="dropdown">
-                <button class="dropbtn">Administrador ▾</button>
-                <div class="dropdown-content">
-                    <a href="{{ url_for('dashboard') }}">Gestión de productos</a>
-                    <a href="{{ url_for('prediccion') }}">Predicción</a>
-                    <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-                </div>
+        <div class="dropdown">
+            <button class="dropbtn">Administrador ▾</button>
+            <div class="dropdown-content">
+                <a href="{{ url_for('dashboard') }}">Gestión de productos</a>
+                <a href="{{ url_for('prediccion') }}">Predicción</a>
+                <a href="{{ url_for('logout') }}">Cerrar sesión</a>
             </div>
+        </div>
         {% else %}
             <a href="{{ url_for('login') }}">Administrador</a>
         {% endif %}
     </nav>
-</header>
 
-<main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alert-container">
-                {% for category, message in messages %}
-                    <div class="alert {{ category }}">{{ message }}</div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
+    <!-- =========================================================
+         🔹 CONTENIDO DINÁMICO
+         ========================================================= -->
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    {% block content %}{% endblock %}
-</main>
+        {% block content %}{% endblock %}
+    </main>
 
-<footer>
-    <p>Kawsa Viva - Innovación y Sabor (2025)</p>
-</footer>
+    <!-- =========================================================
+         🔹 PIE DE PÁGINA
+         ========================================================= -->
+    <footer>
+        <img src="{{ url_for('static', filename='img/UNL.png') }}" alt="Logo UNL" class="footer-logo footer-left">
+        <p>Kawsa Viva - Innovación y Sabor (2025)</p>
+        <img src="{{ url_for('static', filename='img/ucun.png') }}" alt="Logo UCUN" class="footer-logo footer-right">
+    </footer>
+
 </body>
 </html>
