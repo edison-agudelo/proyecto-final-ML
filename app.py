@@ -207,18 +207,21 @@ def eliminar_producto(pid):
 
 
 # =======================================================
-# 🛒 CARRITO Y PEDIDOS
+# 🛒 CARRITO Y PEDIDOS (Versión segura y optimizada)
 # =======================================================
+
 @app.route('/carrito')
 def carrito():
     cart = session.get('cart', {})
     if not cart:
         return render_template('carrito.html', productos=[], total=0, cart_count=0)
 
+    ids = list(cart.keys())
+    placeholders = ', '.join(['%s'] * len(ids))  # genera "%s, %s, %s"
+
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    ids = tuple(cart.keys())
-    query = f"SELECT * FROM productos WHERE id IN {ids}"
-    cur.execute(query)
+    query = f"SELECT * FROM productos WHERE id IN ({placeholders})"
+    cur.execute(query, ids)
     productos_db = cur.fetchall()
     cur.close()
 
@@ -244,10 +247,12 @@ def carrito():
 def carrito_agregar():
     producto_id = request.form.get('producto_id')
     cantidad = int(request.form.get('cantidad', 1))
+
     cart = session.get('cart', {})
     cart[producto_id] = cart.get(producto_id, 0) + cantidad
     session['cart'] = cart
     session.modified = True
+
     flash('Producto agregado al carrito 🛒', 'success')
     return redirect(url_for('catalogo'))
 
@@ -259,10 +264,12 @@ def pedido_desde_carrito():
         flash('Tu carrito está vacío.', 'warning')
         return redirect(url_for('catalogo'))
 
+    ids = list(cart.keys())
+    placeholders = ', '.join(['%s'] * len(ids))
+
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    ids = tuple(cart.keys())
-    query = f"SELECT * FROM productos WHERE id IN {ids}"
-    cur.execute(query)
+    query = f"SELECT * FROM productos WHERE id IN ({placeholders})"
+    cur.execute(query, ids)
     productos_db = cur.fetchall()
 
     productos = []
@@ -272,31 +279,50 @@ def pedido_desde_carrito():
         cantidad = cart.get(pid, 0)
         subtotal = float(p['precio']) * cantidad
         total += subtotal
-        productos.append({'id': p['id'], 'nombre': p['nombre'], 'precio': p['precio'], 'cantidad': cantidad, 'subtotal': subtotal})
+        productos.append({
+            'id': p['id'],
+            'nombre': p['nombre'],
+            'precio': p['precio'],
+            'cantidad': cantidad,
+            'subtotal': subtotal
+        })
 
     if request.method == 'POST':
         nombre = request.form['nombre']
         email = request.form['email']
         telefono = request.form['telefono']
-        cur.execute("""INSERT INTO pedidos (cliente_nombre, cliente_email, cliente_telefono, total) VALUES (%s,%s,%s,%s)""",
-                    (nombre, email, telefono, total))
+
+        # 🧾 Registrar pedido
+        cur.execute("""
+            INSERT INTO pedidos (cliente_nombre, cliente_email, cliente_telefono, total)
+            VALUES (%s, %s, %s, %s)
+        """, (nombre, email, telefono, total))
         mysql.connection.commit()
         pedido_id = cur.lastrowid
+
+        # 🧾 Registrar detalles
         for item in productos:
-            cur.execute("""INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, subtotal)
-                           VALUES (%s, %s, %s, %s)""", (pedido_id, item['id'], item['cantidad'], item['subtotal']))
+            cur.execute("""
+                INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, subtotal)
+                VALUES (%s, %s, %s, %s)
+            """, (pedido_id, item['id'], item['cantidad'], item['subtotal']))
         mysql.connection.commit()
         cur.close()
+
+        # 📱 Enviar mensaje por WhatsApp
         mensaje = f"Hola, soy {nombre}. Mi pedido es:%0A"
         for item in productos:
             mensaje += f"- {item['cantidad']} x {item['nombre']} = ${item['subtotal']:.2f}%0A"
         mensaje += f"%0ATotal: ${total:.2f}%0AEmail: {email}%0ATeléfono: {telefono}"
+
         whatsapp_url = f"https://wa.me/573012373875?text={mensaje}"
+
         session['cart'] = {}
         session.modified = True
         return redirect(whatsapp_url)
 
     return render_template('pedido_carrito.html', productos=productos, total=round(total, 2))
+
 
 
 # =======================================================
