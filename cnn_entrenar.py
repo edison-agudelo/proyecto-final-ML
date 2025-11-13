@@ -73,9 +73,10 @@ print("\n✅ Entrenamiento finalizado correctamente.")
 # 💾 Guardar modelo actualizado
 # ======================================================
 os.makedirs('ml_models', exist_ok=True)
-model.save(os.path.join('ml_models', 'cnn_model.h5'))
+model.save('ml_models/cnn_model.keras')
 
-print("\n✅ Modelo multiclase entrenado y guardado en 'ml_models/cnn_model.h5'")
+
+print("\n✅ Modelo multiclase entrenado y guardado en 'ml_models/cnn_model.keras'")
 
 import json
 

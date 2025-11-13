@@ -336,8 +336,9 @@ except:
     modelo_regresion = None
 
 # Modelo CNN
-cnn_model_path = os.path.join('ml_models', 'cnn_model.h5')
+cnn_model_path = os.path.join('ml_models', 'cnn_model.keras')
 cnn_model = load_model(cnn_model_path) if os.path.exists(cnn_model_path) else None
+
 
 
 @app.route('/prediccion', methods=['GET', 'POST'])
