@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Asistente Virtual</h2>
+<p>Habla con tu asistente virtual para obtener ayuda.</p>
+
+<div id="chat-container">
+    <div id="chat-box"></div>
+
+    <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Escribe tu mensaje...">
+        <button onclick="enviarMensaje()">Enviar</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+{% endblock %}

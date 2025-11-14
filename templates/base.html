@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title if title else "Puré Inteligente - ML" }}</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
 </head>
 <body>
 
@@ -40,8 +42,34 @@
     </main>
 
     <footer>
-        <p>Proyecto final Control de calidad y predicción con ML</p>
+        <p>Proyecto final – Control de calidad y predicción con ML</p>
     </footer>
 
+    <!-- WIDGET DEL CHATBOT (APARECE EN TODAS LAS PÁGINAS) -->
+    <div id="chatbot-widget" class="chatbot-widget">
+        <div class="chatbot-header">
+            <span>ChatBot - Atención al Cliente</span>
+            <button id="chatbot-close" class="chatbot-close">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            <!-- mensajes se agregan por JS -->
+        </div>
+        <div class="chatbot-input-area">
+            <input
+                type="text"
+                id="chatbot-input"
+                placeholder="Escribe tu mensaje..."
+                autocomplete="off"
+            >
+            <button id="chatbot-send">Enviar</button>
+        </div>
+    </div>
+
+    <!-- BURBUJA FLOTANTE -->
+    <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Abrir chat">
+        💬
+    </button>
+
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 </body>
 </html>
