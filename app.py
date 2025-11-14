@@ -9,7 +9,7 @@ from PIL import Image
 from datetime import timedelta
 from flask import (
     Flask, render_template, request, redirect,
-    url_for, session, flash
+    url_for, session, flash, g
 )
 from tensorflow.keras.models import load_model
 
@@ -23,13 +23,22 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 # =======================================================
 # 📌 CONFIG SQLITE (Render-friendly)
 # =======================================================
-DB_PATH = os.path.join(os.path.dirname(__file__), "database.db")
-
+DB_PATH = os.path.join(os.path.dirname(__file__), "pure_ml.db")
+print(">>> Ruta BD:", DB_PATH)
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row   # Retorna diccionarios (como MySQL)
-    return conn
+    if "db" not in g:
+        g.db = sqlite3.connect(DB_PATH)
+        g.db.row_factory = sqlite3.Row  # Similar a DictCursor
+    return g.db
 
+@app.teardown_appcontext
+def close_db(error):
+    db = g.pop("db", None)
+    if db:
+        db.close()
+
+# =======================================================
+# 📁 CONFIGURACIÓN IMÁGENES
 # =======================================================
 UPLOAD_FOLDER = os.path.join('static', 'img')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -48,10 +57,7 @@ def root_redirect():
 @app.route('/inicio')
 def inicio():
     db = get_db()
-    cur = db.cursor()
-    cur.execute("SELECT * FROM productos WHERE activo = 1")
-    productos = cur.fetchall()
-    db.close()
+    productos = db.execute("SELECT * FROM productos WHERE activo = 1").fetchall()
     return render_template('inicio.html', productos=productos)
 
 @app.route('/quienes')
@@ -61,14 +67,11 @@ def quienes():
 @app.route('/catalogo')
 def catalogo():
     db = get_db()
-    cur = db.cursor()
-    cur.execute("SELECT * FROM productos WHERE activo = 1")
-    productos = cur.fetchall()
-    db.close()
+    productos = db.execute("SELECT * FROM productos WHERE activo = 1").fetchall()
     return render_template('catalogo.html', productos=productos)
 
 # =======================================================
-# 🔐 LOGIN Y SESIÓN ADMIN
+# 🔐 LOGIN
 # =======================================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -77,12 +80,10 @@ def login():
         contrasena = request.form.get('contrasena')
 
         db = get_db()
-        cur = db.cursor()
-        cur.execute("""
-            SELECT * FROM admin WHERE usuario=? AND contrasena=? LIMIT 1
-        """, (usuario, contrasena))
-        cuenta = cur.fetchone()
-        db.close()
+        cuenta = db.execute(
+            "SELECT * FROM admin WHERE usuario=? AND contrasena=? LIMIT 1",
+            (usuario, contrasena)
+        ).fetchone()
 
         if cuenta:
             session['logueado'] = True
@@ -110,18 +111,11 @@ def dashboard():
         return redirect(url_for('login'))
 
     db = get_db()
-    cur = db.cursor()
+    productos = db.execute("SELECT * FROM productos").fetchall()
+    pedidos = db.execute("SELECT * FROM pedidos ORDER BY fecha_pedido DESC").fetchall()
 
-    cur.execute("SELECT * FROM productos")
-    productos = cur.fetchall()
-
-    cur.execute("SELECT * FROM pedidos ORDER BY fecha_pedido DESC")
-    pedidos = cur.fetchall()
-
-    db.close()
-
-    metrics = {}
     metrics_path = os.path.join("ml_models", "training_metrics.json")
+    metrics = {}
     if os.path.exists(metrics_path):
         with open(metrics_path, "r") as f:
             metrics = json.load(f)
@@ -141,7 +135,7 @@ def agregar_producto():
     presentacion = request.form['presentacion']
     precio = request.form['precio']
     stock = request.form['stock']
-    activo = 1 if request.form.get('activo') == 'on' else 0
+    activo = 1 if request.form.get('activo') else 0
 
     imagen = request.files.get('imagen')
     filename = None
@@ -150,13 +144,11 @@ def agregar_producto():
         imagen.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
     db = get_db()
-    cur = db.cursor()
-    cur.execute("""
+    db.execute("""
         INSERT INTO productos (nombre, descripcion, presentacion, precio, imagen, stock, activo)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (nombre, descripcion, presentacion, precio, filename, stock, activo))
     db.commit()
-    db.close()
 
     flash("Producto agregado correctamente ✅", "success")
     return redirect(url_for('dashboard'))
@@ -167,26 +159,23 @@ def actualizar_productos():
         return redirect(url_for('login'))
 
     db = get_db()
-    cur = db.cursor()
 
     for key, value in request.form.items():
         if key.startswith("nombre_"):
-            _id = key.split("_")[1]
+            pid = key.split("_")[1]
             nombre = value
-            descripcion = request.form.get(f"descripcion_{_id}")
-            presentacion = request.form.get(f"presentacion_{_id}")
-            stock = request.form.get(f"stock_{_id}")
-            precio = request.form.get(f"precio_{_id}")
-            activo = 1 if request.form.get(f"activo_{_id}") else 0
+            descripcion = request.form.get(f"descripcion_{pid}")
+            presentacion = request.form.get(f"presentacion_{pid}")
+            stock = request.form.get(f"stock_{pid}")
+            precio = request.form.get(f"precio_{pid}")
+            activo = 1 if request.form.get(f"activo_{pid}") else 0
 
-            cur.execute("""
+            db.execute("""
                 UPDATE productos SET nombre=?, descripcion=?, presentacion=?, 
                 stock=?, precio=?, activo=? WHERE id=?
-            """, (nombre, descripcion, presentacion, stock, precio, activo, _id))
+            """, (nombre, descripcion, presentacion, stock, precio, activo, pid))
 
     db.commit()
-    db.close()
-
     flash("Productos actualizados correctamente ✅", "success")
     return redirect(url_for('dashboard'))
 
@@ -196,10 +185,8 @@ def eliminar_producto(pid):
         return redirect(url_for('login'))
 
     db = get_db()
-    cur = db.cursor()
-    cur.execute("DELETE FROM productos WHERE id=?", (pid,))
+    db.execute("DELETE FROM productos WHERE id=?", (pid,))
     db.commit()
-    db.close()
 
     flash("Producto eliminado ❌", "info")
     return redirect(url_for('dashboard'))
@@ -207,6 +194,7 @@ def eliminar_producto(pid):
 # =======================================================
 # 🛒 CARRITO DE COMPRAS
 # =======================================================
+
 @app.route('/carrito')
 def carrito():
     cart = session.get('cart', {})
@@ -214,13 +202,10 @@ def carrito():
         return render_template("carrito.html", productos=[], total=0, cart_count=0)
 
     ids = list(cart.keys())
-    placeholders = ", ".join(["?"] * len(ids))
+    placeholders = ",".join(["?"] * len(ids))
 
     db = get_db()
-    cur = db.cursor()
-    cur.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids)
-    productos_db = cur.fetchall()
-    db.close()
+    productos_db = db.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids).fetchall()
 
     productos = []
     total = 0
@@ -230,11 +215,10 @@ def carrito():
         cantidad = cart.get(pid, 0)
         subtotal = float(p['precio']) * cantidad
         total += subtotal
-
         productos.append({
-            "id": p['id'],
-            "nombre": p['nombre'],
-            "precio": p['precio'],
+            "id": p["id"],
+            "nombre": p["nombre"],
+            "precio": p["precio"],
             "cantidad": cantidad,
             "subtotal": subtotal
         })
@@ -248,6 +232,7 @@ def carrito_agregar():
 
     cart = session.get("cart", {})
     cart[producto_id] = cart.get(producto_id, 0) + cantidad
+
     session["cart"] = cart
     session.modified = True
 
@@ -255,7 +240,7 @@ def carrito_agregar():
     return redirect(url_for('catalogo'))
 
 # =======================================================
-# 🛒 PEDIDO DESDE CARRITO
+# 🛒 PEDIDOS
 # =======================================================
 @app.route('/pedido_desde_carrito', methods=['GET', 'POST'])
 def pedido_desde_carrito():
@@ -265,22 +250,17 @@ def pedido_desde_carrito():
         return redirect(url_for('catalogo'))
 
     ids = list(cart.keys())
-    placeholders = ", ".join(["?"] * len(ids))
+    placeholders = ",".join(["?"] * len(ids))
 
     db = get_db()
-    cur = db.cursor()
-    cur.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids)
-    productos_db = cur.fetchall()
+    productos_db = db.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids).fetchall()
 
     productos = []
     total = 0
-
     for p in productos_db:
         pid = str(p['id'])
         cantidad = cart.get(pid, 0)
         subtotal = float(p['precio']) * cantidad
-        total += subtotal
-
         productos.append({
             "id": p['id'],
             "nombre": p['nombre'],
@@ -288,27 +268,28 @@ def pedido_desde_carrito():
             "cantidad": cantidad,
             "subtotal": subtotal
         })
+        total += subtotal
 
     if request.method == "POST":
         nombre = request.form["nombre"]
         email = request.form["email"]
         telefono = request.form["telefono"]
 
-        cur.execute("""
+        db.execute("""
             INSERT INTO pedidos (cliente_nombre, cliente_email, cliente_telefono, total)
             VALUES (?, ?, ?, ?)
         """, (nombre, email, telefono, total))
-        pedido_id = cur.lastrowid
+        pedido_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
 
         for item in productos:
-            cur.execute("""
+            db.execute("""
                 INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, subtotal)
                 VALUES (?, ?, ?, ?)
             """, (pedido_id, item["id"], item["cantidad"], item["subtotal"]))
 
         db.commit()
-        db.close()
 
+        # Crear mensaje WhatsApp
         mensaje = f"Hola, soy {nombre}. Mi pedido es:%0A"
         for item in productos:
             mensaje += f"- {item['cantidad']} x {item['nombre']} = ${item['subtotal']:.2f}%0A"
@@ -325,7 +306,7 @@ def pedido_desde_carrito():
     return render_template("pedido_carrito.html", productos=productos, total=round(total, 2))
 
 # =======================================================
-# 🤖 MODELOS DE MACHINE LEARNING
+# 🤖 MACHINE LEARNING
 # =======================================================
 try:
     with open(os.path.join("ml_models", "regression_model.pkl"), "rb") as f:
@@ -334,6 +315,7 @@ except Exception as e:
     print("⚠ Error cargando modelo regresión:", e)
     modelo_regresion = None
 
+# CNN
 cnn_model_path = os.path.join("ml_models", "cnn_model.h5")
 class_indices_path = os.path.join("ml_models", "class_indices.json")
 
@@ -359,9 +341,6 @@ CNN_LABELS_HUMAN = {
     "yuca mala": "Yuca de calidad C (defectuosa)"
 }
 
-# =======================================================
-# 🔮 PREDICCIÓN
-# =======================================================
 @app.route('/prediccion', methods=['GET', 'POST'])
 def prediccion():
     if "logueado" not in session:
@@ -374,6 +353,7 @@ def prediccion():
     if request.method == "POST":
         tipo = request.form.get("tipo")
 
+        # Modelo regresión
         if tipo == "regresion" and modelo_regresion:
             try:
                 t1 = float(request.form["tipo_camote"])
@@ -381,25 +361,22 @@ def prediccion():
                 t2 = float(request.form["tamano_lote"])
                 entrada = np.array([[t1, h, t2]])
                 resultado_regresion = round(modelo_regresion.predict(entrada)[0], 2)
-
             except Exception as e:
                 resultado_regresion = f"⚠ Error: {e}"
 
+        # Modelo CNN
         elif tipo == "cnn" and cnn_model:
             img_data = request.form.get("imagen")
-
             if img_data:
                 try:
                     img_data = img_data.split(",")[1]
                     img = Image.open(BytesIO(base64.b64decode(img_data))).convert("RGB")
                     img = img.resize((128, 128))
-
                     img_array = np.array(img) / 255.0
                     img_array = np.expand_dims(img_array, axis=0)
 
                     pred = cnn_model.predict(img_array)
                     idx = int(np.argmax(pred))
-
                     clase = CNN_CLASSES[idx]
                     resultado_cnn = CNN_LABELS_HUMAN[clase]
 
@@ -413,7 +390,7 @@ def prediccion():
     )
 
 # =======================================================
-# 🚀 EJECUCIÓN
+# 🚀 EJECUCIÓN LOCAL
 # =======================================================
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
