@@ -3,6 +3,7 @@ import base64
 import pickle
 import json
 import numpy as np
+import sqlite3
 from io import BytesIO
 from PIL import Image
 from datetime import timedelta
@@ -10,8 +11,6 @@ from flask import (
     Flask, render_template, request, redirect,
     url_for, session, flash
 )
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
 from tensorflow.keras.models import load_model
 
 # =======================================================
@@ -22,23 +21,14 @@ app.secret_key = 'clave_secreta_para_tu_app'
 app.permanent_session_lifetime = timedelta(minutes=30)
 
 # =======================================================
-# 🟩 CONFIG MYSQL PARA RAILWAY (PRODUCCIÓN)
+# 📌 CONFIG SQLITE (Render-friendly)
 # =======================================================
+DB_PATH = os.path.join(os.path.dirname(__file__), "database.db")
 
-app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST')
-app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
-app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB')
-app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
-
-print("\n===== CONFIGURACIÓN MYSQL =====")
-print("MYSQL_HOST:", app.config['MYSQL_HOST'])
-print("MYSQL_USER:", app.config['MYSQL_USER'])
-print("MYSQL_DB:", app.config['MYSQL_DB'])
-print("MYSQL_PORT:", app.config['MYSQL_PORT'])
-print("=================================\n")
-
-mysql = MySQL(app)
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row   # Retorna diccionarios (como MySQL)
+    return conn
 
 # =======================================================
 UPLOAD_FOLDER = os.path.join('static', 'img')
@@ -57,10 +47,11 @@ def root_redirect():
 
 @app.route('/inicio')
 def inicio():
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
     cur.execute("SELECT * FROM productos WHERE activo = 1")
     productos = cur.fetchall()
-    cur.close()
+    db.close()
     return render_template('inicio.html', productos=productos)
 
 @app.route('/quienes')
@@ -69,10 +60,11 @@ def quienes():
 
 @app.route('/catalogo')
 def catalogo():
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
     cur.execute("SELECT * FROM productos WHERE activo = 1")
     productos = cur.fetchall()
-    cur.close()
+    db.close()
     return render_template('catalogo.html', productos=productos)
 
 # =======================================================
@@ -84,12 +76,13 @@ def login():
         usuario = request.form.get('usuario')
         contrasena = request.form.get('contrasena')
 
-        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        db = get_db()
+        cur = db.cursor()
         cur.execute("""
-            SELECT * FROM admin WHERE usuario=%s AND contrasena=%s LIMIT 1
+            SELECT * FROM admin WHERE usuario=? AND contrasena=? LIMIT 1
         """, (usuario, contrasena))
         cuenta = cur.fetchone()
-        cur.close()
+        db.close()
 
         if cuenta:
             session['logueado'] = True
@@ -116,13 +109,16 @@ def dashboard():
         flash("Debe iniciar sesión para acceder al panel.", "danger")
         return redirect(url_for('login'))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
+
     cur.execute("SELECT * FROM productos")
     productos = cur.fetchall()
 
     cur.execute("SELECT * FROM pedidos ORDER BY fecha_pedido DESC")
     pedidos = cur.fetchall()
-    cur.close()
+
+    db.close()
 
     metrics = {}
     metrics_path = os.path.join("ml_models", "training_metrics.json")
@@ -153,13 +149,14 @@ def agregar_producto():
         filename = imagen.filename
         imagen.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
     cur.execute("""
         INSERT INTO productos (nombre, descripcion, presentacion, precio, imagen, stock, activo)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (nombre, descripcion, presentacion, precio, filename, stock, activo))
-    mysql.connection.commit()
-    cur.close()
+    db.commit()
+    db.close()
 
     flash("Producto agregado correctamente ✅", "success")
     return redirect(url_for('dashboard'))
@@ -169,7 +166,8 @@ def actualizar_productos():
     if 'logueado' not in session:
         return redirect(url_for('login'))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
 
     for key, value in request.form.items():
         if key.startswith("nombre_"):
@@ -182,12 +180,12 @@ def actualizar_productos():
             activo = 1 if request.form.get(f"activo_{_id}") else 0
 
             cur.execute("""
-                UPDATE productos SET nombre=%s, descripcion=%s, presentacion=%s, 
-                stock=%s, precio=%s, activo=%s WHERE id=%s
+                UPDATE productos SET nombre=?, descripcion=?, presentacion=?, 
+                stock=?, precio=?, activo=? WHERE id=?
             """, (nombre, descripcion, presentacion, stock, precio, activo, _id))
 
-    mysql.connection.commit()
-    cur.close()
+    db.commit()
+    db.close()
 
     flash("Productos actualizados correctamente ✅", "success")
     return redirect(url_for('dashboard'))
@@ -197,10 +195,11 @@ def eliminar_producto(pid):
     if 'logueado' not in session:
         return redirect(url_for('login'))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("DELETE FROM productos WHERE id=%s", (pid,))
-    mysql.connection.commit()
-    cur.close()
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("DELETE FROM productos WHERE id=?", (pid,))
+    db.commit()
+    db.close()
 
     flash("Producto eliminado ❌", "info")
     return redirect(url_for('dashboard'))
@@ -215,12 +214,13 @@ def carrito():
         return render_template("carrito.html", productos=[], total=0, cart_count=0)
 
     ids = list(cart.keys())
-    placeholders = ", ".join(["%s"] * len(ids))
+    placeholders = ", ".join(["?"] * len(ids))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
     cur.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids)
     productos_db = cur.fetchall()
-    cur.close()
+    db.close()
 
     productos = []
     total = 0
@@ -265,9 +265,10 @@ def pedido_desde_carrito():
         return redirect(url_for('catalogo'))
 
     ids = list(cart.keys())
-    placeholders = ", ".join(["%s"] * len(ids))
+    placeholders = ", ".join(["?"] * len(ids))
 
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    db = get_db()
+    cur = db.cursor()
     cur.execute(f"SELECT * FROM productos WHERE id IN ({placeholders})", ids)
     productos_db = cur.fetchall()
 
@@ -295,19 +296,18 @@ def pedido_desde_carrito():
 
         cur.execute("""
             INSERT INTO pedidos (cliente_nombre, cliente_email, cliente_telefono, total)
-            VALUES (%s, %s, %s, %s)
+            VALUES (?, ?, ?, ?)
         """, (nombre, email, telefono, total))
-        mysql.connection.commit()
         pedido_id = cur.lastrowid
 
         for item in productos:
             cur.execute("""
                 INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, subtotal)
-                VALUES (%s, %s, %s, %s)
+                VALUES (?, ?, ?, ?)
             """, (pedido_id, item["id"], item["cantidad"], item["subtotal"]))
 
-        mysql.connection.commit()
-        cur.close()
+        db.commit()
+        db.close()
 
         mensaje = f"Hola, soy {nombre}. Mi pedido es:%0A"
         for item in productos:
@@ -325,7 +325,7 @@ def pedido_desde_carrito():
     return render_template("pedido_carrito.html", productos=productos, total=round(total, 2))
 
 # =======================================================
-# 🤖 CARGA DE MODELOS DE ML
+# 🤖 MODELOS DE MACHINE LEARNING
 # =======================================================
 try:
     with open(os.path.join("ml_models", "regression_model.pkl"), "rb") as f:
@@ -346,17 +346,11 @@ if os.path.exists(cnn_model_path):
         print("✅ CNN cargado:", cnn_model_path)
     except Exception as e:
         print("⚠ Error cargando CNN:", e)
-else:
-    print("⚠ No se encontró cnn_model.h5")
 
 if os.path.exists(class_indices_path):
     with open(class_indices_path, "r") as f:
         class_dict = json.load(f)
-
     CNN_CLASSES = sorted(class_dict, key=class_dict.get)
-    print("📌 Clases detectadas:", CNN_CLASSES)
-else:
-    print("⚠ No se encontró class_indices.json")
 
 CNN_LABELS_HUMAN = {
     "camote buena": "Camote de calidad A (bueno)",
@@ -382,11 +376,10 @@ def prediccion():
 
         if tipo == "regresion" and modelo_regresion:
             try:
-                tipo_camote = float(request.form["tipo_camote"])
-                humedad = float(request.form["humedad"])
-                tamano_lote = float(request.form["tamano_lote"])
-
-                entrada = np.array([[tipo_camote, humedad, tamano_lote]])
+                t1 = float(request.form["tipo_camote"])
+                h = float(request.form["humedad"])
+                t2 = float(request.form["tamano_lote"])
+                entrada = np.array([[t1, h, t2]])
                 resultado_regresion = round(modelo_regresion.predict(entrada)[0], 2)
 
             except Exception as e:
@@ -408,16 +401,16 @@ def prediccion():
                     idx = int(np.argmax(pred))
 
                     clase = CNN_CLASSES[idx]
-                    human = CNN_LABELS_HUMAN[clase]
-
-                    resultado_cnn = f"{human}"
+                    resultado_cnn = CNN_LABELS_HUMAN[clase]
 
                 except Exception as e:
                     resultado_cnn = f"⚠ Error procesando imagen: {e}"
 
-    return render_template("prediccion.html",
-                           resultado_regresion=resultado_regresion,
-                           resultado_cnn=resultado_cnn)
+    return render_template(
+        "prediccion.html",
+        resultado_regresion=resultado_regresion,
+        resultado_cnn=resultado_cnn
+    )
 
 # =======================================================
 # 🚀 EJECUCIÓN
