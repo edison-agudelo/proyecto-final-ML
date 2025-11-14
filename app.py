@@ -9,7 +9,7 @@ from PIL import Image
 from datetime import timedelta
 from flask import (
     Flask, render_template, request, redirect,
-    url_for, session, flash, g
+    url_for, session, flash, g, jsonify
 )
 from tensorflow.keras.models import load_model
 
@@ -25,10 +25,11 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 # =======================================================
 DB_PATH = os.path.join(os.path.dirname(__file__), "pure_ml.db")
 print(">>> Ruta BD:", DB_PATH)
+
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row  # Similar a DictCursor
+        g.db.row_factory = sqlite3.Row
     return g.db
 
 @app.teardown_appcontext
@@ -38,7 +39,7 @@ def close_db(error):
         db.close()
 
 # =======================================================
-# 📁 CONFIGURACIÓN IMÁGENES
+# 📁 CONFIG IMÁGENES
 # =======================================================
 UPLOAD_FOLDER = os.path.join('static', 'img')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -192,9 +193,8 @@ def eliminar_producto(pid):
     return redirect(url_for('dashboard'))
 
 # =======================================================
-# 🛒 CARRITO DE COMPRAS
+# 🛒 CARRITO + PEDIDOS
 # =======================================================
-
 @app.route('/carrito')
 def carrito():
     cart = session.get('cart', {})
@@ -239,9 +239,6 @@ def carrito_agregar():
     flash("Producto agregado al carrito 🛒", "success")
     return redirect(url_for('catalogo'))
 
-# =======================================================
-# 🛒 PEDIDOS
-# =======================================================
 @app.route('/pedido_desde_carrito', methods=['GET', 'POST'])
 def pedido_desde_carrito():
     cart = session.get("cart", {})
@@ -289,7 +286,6 @@ def pedido_desde_carrito():
 
         db.commit()
 
-        # Crear mensaje WhatsApp
         mensaje = f"Hola, soy {nombre}. Mi pedido es:%0A"
         for item in productos:
             mensaje += f"- {item['cantidad']} x {item['nombre']} = ${item['subtotal']:.2f}%0A"
@@ -306,7 +302,7 @@ def pedido_desde_carrito():
     return render_template("pedido_carrito.html", productos=productos, total=round(total, 2))
 
 # =======================================================
-# 🤖 MACHINE LEARNING
+# 🤖 MACHINE LEARNING – REGRESIÓN
 # =======================================================
 try:
     with open(os.path.join("ml_models", "regression_model.pkl"), "rb") as f:
@@ -315,7 +311,9 @@ except Exception as e:
     print("⚠ Error cargando modelo regresión:", e)
     modelo_regresion = None
 
-# CNN
+# =======================================================
+# 🤖 MACHINE LEARNING – CNN
+# =======================================================
 cnn_model_path = os.path.join("ml_models", "cnn_model.h5")
 class_indices_path = os.path.join("ml_models", "class_indices.json")
 
@@ -353,7 +351,6 @@ def prediccion():
     if request.method == "POST":
         tipo = request.form.get("tipo")
 
-        # Modelo regresión
         if tipo == "regresion" and modelo_regresion:
             try:
                 t1 = float(request.form["tipo_camote"])
@@ -364,7 +361,6 @@ def prediccion():
             except Exception as e:
                 resultado_regresion = f"⚠ Error: {e}"
 
-        # Modelo CNN
         elif tipo == "cnn" and cnn_model:
             img_data = request.form.get("imagen")
             if img_data:
@@ -377,6 +373,7 @@ def prediccion():
 
                     pred = cnn_model.predict(img_array)
                     idx = int(np.argmax(pred))
+
                     clase = CNN_CLASSES[idx]
                     resultado_cnn = CNN_LABELS_HUMAN[clase]
 
@@ -388,6 +385,46 @@ def prediccion():
         resultado_regresion=resultado_regresion,
         resultado_cnn=resultado_cnn
     )
+
+# =======================================================
+# 💬 CHATBOT INTEGRADO AQUÍ
+# =======================================================
+def responder_chatbot(mensaje: str) -> str:
+    msg = mensaje.lower()
+
+    if any(p in msg for p in ["hola", "buenas", "buenos días", "buenas tardes"]):
+        return "¡Hola! 👋 ¿En qué puedo ayudarte hoy? Productos, precios, calidad o pedidos."
+
+    if any(p in msg for p in ["catálogo", "catalogo", "producto", "productos"]):
+        return "Tenemos puré de yuca y de camote en varias presentaciones. Puedes verlos en la sección Catálogo."
+
+    if any(p in msg for p in ["precio", "vale", "cuánto"]):
+        return "Los precios están actualizados en el catálogo. 😊"
+
+    if any(p in msg for p in ["pedido", "comprar", "compra", "encargar"]):
+        return "Para hacer un pedido, agrega productos al carrito y confirma desde la página de pedido."
+
+    if any(p in msg for p in ["calidad", "dañado", "malo", "camote", "yuca"]):
+        return "El sistema de control de calidad usa una CNN para analizar la calidad del camote/yuca desde la cámara."
+
+    if any(p in msg for p in ["whatsapp", "contacto", "teléfono", "telefono"]):
+        return "Nuestro WhatsApp es 📱 573012373875."
+
+    if "ayuda" in msg:
+        return "Puedo ayudarte con catálogo, pedidos, precios o control de calidad. ¿Qué deseas saber?"
+
+    return "Interesante 🤔. ¿Quieres saber sobre productos, precios, pedidos o control de calidad?"
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    data = request.get_json(silent=True) or {}
+    mensaje = data.get("mensaje", "").strip()
+
+    if not mensaje:
+        return jsonify({"respuesta": "No me llegó ningún mensaje 😅. Escribe algo y te ayudo."})
+
+    respuesta = responder_chatbot(mensaje)
+    return jsonify({"respuesta": respuesta})
 
 # =======================================================
 # 🚀 EJECUCIÓN LOCAL

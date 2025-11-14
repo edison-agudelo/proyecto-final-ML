@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title if title else "Kawsa Viva - Innovación Alimentaria" }}</title>
 
+    <!-- CSS principal del sitio -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- CSS del chatbot -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+
     <style>
         /* =========================================================
            🎨 PALETA DE COLORES CORPORATIVA
@@ -26,9 +32,7 @@
             padding: 0;
         }
 
-        /* =========================================================
-           🔹 ENCABEZADO CON DEGRADADO
-        ========================================================= */
+        /* ENCABEZADO */
         header {
             position: relative;
             display: flex;
@@ -45,29 +49,21 @@
             left: 40px;
             width: 4.5cm;
             height: auto;
-            object-fit: contain;
         }
 
         header h1 {
             font-size: 2.3rem;
-            font-weight: bold;
             letter-spacing: 1px;
-            text-transform: uppercase;
-            text-align: center;
             margin: 0;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+            text-transform: uppercase;
         }
 
-        /* =========================================================
-           🔹 NAVBAR
-        ========================================================= */
+        /* NAVBAR */
         nav {
             display: flex;
             justify-content: center;
-            align-items: center;
-            background-color: #ffffff;
+            background: #fff;
             padding: 12px 0;
-            flex-wrap: wrap;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
@@ -76,170 +72,38 @@
             text-decoration: none;
             font-weight: 600;
             margin: 0 15px;
-            transition: color 0.3s ease;
         }
 
         nav a:hover {
             color: var(--dorado);
         }
 
-        /* 🔸 Dropdown */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropbtn {
-            background: none;
-            border: none;
-            color: var(--verde-principal);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            min-width: 180px;
-            border-radius: 8px;
-            right: 0;
-            z-index: 5;
-        }
-
-        .dropdown-content a {
-            color: #333;
-            text-decoration: none;
-            padding: 10px;
-            display: block;
-            font-weight: 500;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f2f2f2;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        /* =========================================================
-           🔹 CONTENIDO PRINCIPAL
-        ========================================================= */
+        /* CONTENIDO */
         main {
             min-height: 70vh;
             padding: 30px;
         }
 
         .contenido-cartica {
-            background-color: #fff;
+            background: #fff;
             border-radius: 15px;
             padding: 35px 45px;
-            margin: 30px auto;
             max-width: 950px;
+            margin: 30px auto;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             border-left: 6px solid var(--dorado);
         }
 
-        .contenido-cartica h2 {
-            color: var(--verde-principal);
-            margin-top: 0;
-        }
-
-        .contenido-cartica p {
-            line-height: 1.7;
-            color: #444;
-        }
-
-        /* =========================================================
-           🔹 PIE DE PÁGINA (DEGRADADO + RELIEVE)
-        ========================================================= */
+        /* PIE DE PÁGINA */
         footer {
             background: linear-gradient(to bottom, #a67c52 0%, var(--marron-footer) 100%);
             color: #fff;
             text-align: center;
             padding: 25px 0;
-            font-size: 0.95rem;
-            position: relative;
-            width: 100%;
             margin-top: 40px;
             box-shadow: inset 0 6px 12px rgba(0,0,0,0.2);
         }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-        }
-
-        .footer-content p {
-            flex-grow: 1;
-            text-align: center;
-            margin: 0;
-            font-weight: 600;
-            color: #fff;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-
-        .footer-logo {
-            width: 3.8cm;
-            height: 3.8cm;
-            object-fit: contain;
-            opacity: 0.97;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .footer-logo:hover {
-            transform: scale(1.08);
-            opacity: 1;
-        }
-
-        /* =========================================================
-           🔹 ALERTAS
-        ========================================================= */
-        .alert-container {
-            max-width: 600px;
-            margin: 10px auto;
-            text-align: center;
-        }
-
-        .alert {
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        .alert.success { background: #d4edda; color: #155724; }
-        .alert.danger  { background: #f8d7da; color: #721c24; }
-        .alert.info    { background: #d1ecf1; color: #0c5460; }
-        .alert.warning { background: #fff3cd; color: #856404; }
-
-        /* =========================================================
-           📱 RESPONSIVE DESIGN
-        ========================================================= */
-        @media (max-width: 992px) {
-            header img.logo {
-                left: 20px;
-                width: 3.5cm;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .footer-logo {
-                width: 3cm;
-                height: 3cm;
-            }
-        }
     </style>
 </head>
 
@@ -249,7 +113,7 @@
          🔹 ENCABEZADO
     ========================================================= -->
     <header>
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Kawsa Viva" class="logo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
         <h1>Kawsa Viva</h1>
     </header>
 
@@ -281,13 +145,13 @@
     ========================================================= -->
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="alert-container">
-                    {% for category, message in messages %}
-                        <div class="alert {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% endwith %}
 
         <div class="contenido-cartica">
@@ -298,13 +162,36 @@
     <!-- =========================================================
          🔹 PIE DE PÁGINA
     ========================================================= -->
-    <footer>
-        <div class="footer-content">
-            <img src="{{ url_for('static', filename='img/UNL.png') }}" alt="Logo UNL" class="footer-logo">
-            <p>Kawsa Viva - Innovación y Sabor (2025)</p>
-            <img src="{{ url_for('static', filename='img/ucun.png') }}" alt="Logo UCUN" class="footer-logo">
+   <footer class="footer-universidades">
+    <img src="{{ url_for('static', filename='img/UNL.png') }}" class="footer-logo izquierda">
+    
+    <p class="footer-text">Kawsa Viva - Innovación y Sabor (2025)</p>
+    
+    <img src="{{ url_for('static', filename='img/ucun.png') }}" class="footer-logo derecha">
+</footer>
+
+
+    <!-- =========================================================
+         🔹 WIDGET DEL CHATBOT (FLOTANTE)
+    ========================================================= -->
+    <div id="chatbot-widget" class="chatbot-widget">
+        <div class="chatbot-header">
+            <span>Asistente Virtual</span>
+            <button id="chatbot-close" class="chatbot-close">&times;</button>
         </div>
-    </footer>
+
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+
+        <div class="chatbot-input-area">
+            <input id="chatbot-input" placeholder="Escribe un mensaje...">
+            <button id="chatbot-send">Enviar</button>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+
+    <!-- JS del chatbot -->
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
 
 </body>
 </html>
