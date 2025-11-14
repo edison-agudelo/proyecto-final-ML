@@ -21,21 +21,32 @@ app = Flask(__name__)
 app.secret_key = 'clave_secreta_para_tu_app'
 app.permanent_session_lifetime = timedelta(minutes=30)
 
-app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', 'localhost')
-app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'root')
-app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', '')
-app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'pure_ml')
+# =======================================================
+# 🟩 CONFIG MYSQL PARA RAILWAY (PRODUCCIÓN)
+# =======================================================
+
+app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST')
+app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
+app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB')
 app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
+
+print("\n===== CONFIGURACIÓN MYSQL =====")
+print("MYSQL_HOST:", app.config['MYSQL_HOST'])
+print("MYSQL_USER:", app.config['MYSQL_USER'])
+print("MYSQL_DB:", app.config['MYSQL_DB'])
+print("MYSQL_PORT:", app.config['MYSQL_PORT'])
+print("=================================\n")
 
 mysql = MySQL(app)
 
+# =======================================================
 UPLOAD_FOLDER = os.path.join('static', 'img')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # =======================================================
 # 🔹 RUTAS PÚBLICAS
@@ -63,7 +74,6 @@ def catalogo():
     productos = cur.fetchall()
     cur.close()
     return render_template('catalogo.html', productos=productos)
-
 
 # =======================================================
 # 🔐 LOGIN Y SESIÓN ADMIN
@@ -97,7 +107,6 @@ def logout():
     flash("Sesión cerrada correctamente.", "info")
     return redirect(url_for('login'))
 
-
 # =======================================================
 # 🧭 DASHBOARD ADMIN
 # =======================================================
@@ -122,7 +131,6 @@ def dashboard():
             metrics = json.load(f)
 
     return render_template("dashboard.html", productos=productos, pedidos=pedidos, metrics=metrics)
-
 
 # =======================================================
 # 🧾 CRUD PRODUCTOS
@@ -156,7 +164,6 @@ def agregar_producto():
     flash("Producto agregado correctamente ✅", "success")
     return redirect(url_for('dashboard'))
 
-
 @app.route('/actualizar_productos', methods=['POST'])
 def actualizar_productos():
     if 'logueado' not in session:
@@ -185,7 +192,6 @@ def actualizar_productos():
     flash("Productos actualizados correctamente ✅", "success")
     return redirect(url_for('dashboard'))
 
-
 @app.route('/eliminar_producto/<int:pid>')
 def eliminar_producto(pid):
     if 'logueado' not in session:
@@ -198,7 +204,6 @@ def eliminar_producto(pid):
 
     flash("Producto eliminado ❌", "info")
     return redirect(url_for('dashboard'))
-
 
 # =======================================================
 # 🛒 CARRITO DE COMPRAS
@@ -236,7 +241,6 @@ def carrito():
 
     return render_template("carrito.html", productos=productos, total=round(total, 2), cart_count=len(cart))
 
-
 @app.route('/carrito_agregar', methods=['POST'])
 def carrito_agregar():
     producto_id = request.form.get("producto_id")
@@ -249,7 +253,6 @@ def carrito_agregar():
 
     flash("Producto agregado al carrito 🛒", "success")
     return redirect(url_for('catalogo'))
-
 
 # =======================================================
 # 🛒 PEDIDO DESDE CARRITO
@@ -321,12 +324,9 @@ def pedido_desde_carrito():
 
     return render_template("pedido_carrito.html", productos=productos, total=round(total, 2))
 
-
 # =======================================================
 # 🤖 CARGA DE MODELOS DE ML
 # =======================================================
-
-# ---- Modelo de regresión ----
 try:
     with open(os.path.join("ml_models", "regression_model.pkl"), "rb") as f:
         modelo_regresion = pickle.load(f)
@@ -334,7 +334,6 @@ except Exception as e:
     print("⚠ Error cargando modelo regresión:", e)
     modelo_regresion = None
 
-# ---- Modelo CNN ----
 cnn_model_path = os.path.join("ml_models", "cnn_model.h5")
 class_indices_path = os.path.join("ml_models", "class_indices.json")
 
@@ -350,7 +349,6 @@ if os.path.exists(cnn_model_path):
 else:
     print("⚠ No se encontró cnn_model.h5")
 
-# ---- Cargar diccionario class_indices.json ----
 if os.path.exists(class_indices_path):
     with open(class_indices_path, "r") as f:
         class_dict = json.load(f)
@@ -360,7 +358,6 @@ if os.path.exists(class_indices_path):
 else:
     print("⚠ No se encontró class_indices.json")
 
-# Traducciones bonitas
 CNN_LABELS_HUMAN = {
     "camote buena": "Camote de calidad A (bueno)",
     "camote mala": "Camote de calidad C (defectuoso)",
@@ -368,9 +365,8 @@ CNN_LABELS_HUMAN = {
     "yuca mala": "Yuca de calidad C (defectuosa)"
 }
 
-
 # =======================================================
-# 🔮 RUTA DE PREDICCIÓN
+# 🔮 PREDICCIÓN
 # =======================================================
 @app.route('/prediccion', methods=['GET', 'POST'])
 def prediccion():
@@ -384,7 +380,6 @@ def prediccion():
     if request.method == "POST":
         tipo = request.form.get("tipo")
 
-        # ▶ REGRESIÓN
         if tipo == "regresion" and modelo_regresion:
             try:
                 tipo_camote = float(request.form["tipo_camote"])
@@ -397,7 +392,6 @@ def prediccion():
             except Exception as e:
                 resultado_regresion = f"⚠ Error: {e}"
 
-        # ▶ CNN
         elif tipo == "cnn" and cnn_model:
             img_data = request.form.get("imagen")
 
@@ -424,7 +418,6 @@ def prediccion():
     return render_template("prediccion.html",
                            resultado_regresion=resultado_regresion,
                            resultado_cnn=resultado_cnn)
-
 
 # =======================================================
 # 🚀 EJECUCIÓN
