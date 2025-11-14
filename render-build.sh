@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-set -o errexit
+# Actualizar pip
+pip install --upgrade pip
 
-# Forzar a Render a usar pip en lugar de Poetry
-pip install --upgrade pip setuptools wheel
+# Instalar dependencias normales
 pip install -r requirements.txt
+
+# Evitar errores de compilación de MySQL
+pip install mysqlclient==2.2.0
+
+# Para evitar problemas con setuptools
+pip install --upgrade setuptools wheel
