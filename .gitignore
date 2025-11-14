@@ -14,22 +14,22 @@ __pycache__/
 *.pyo
 *.pyd
 
-# 🔥 Modelos de Machine Learning (pesados)
-*.h5
-*.pkl
-*.joblib
-*.hdf5
-*.tflite
-*.pb
-checkpoint
-*.ckpt*
+# 🔥 NO IGNORAR MODELOS (Render los necesita)
+# ❌ NO IGNORAR:
+# cnn_model.h5
+# regression_model.pkl
+# class_indices.json
+# training_metrics.json
 
-# 🧪 Datos de entrenamiento / resultados
+# 🧪 Dataset (solo el dataset se ignora)
+ml_models/dataset/
 dataset/
+data/
+
+# 📄 Archivos grandes o datos crudos
 *.csv
 *.xlsx
 *.xls
-*.json
 *.npz
 *.npy
 
@@ -37,23 +37,22 @@ dataset/
 .DS_Store
 Thumbs.db
 
-# 🧰 Configuración de VSCode y entorno local
+# 🧰 Configuración local
 .vscode/
 .idea/
 .env
 .env.*
-instance/
-uploads/
+
+# 🔧 Cache internas
 ml_models/__pycache__/
 
-# 🚀 Archivos de Render o temporales
+# 🚀 Archivos temporales / Render
 *.log
 *.tmp
 *.bak
 *.swp
 
 # 🧩 Archivos de despliegue / compilación
-__pycache__/
 staticfiles/
 *.egg-info/
 *.spec
@@ -61,3 +60,7 @@ staticfiles/
 # 🧱 Archivos de backups o pruebas locales
 *.old
 *.save
+
+# 🔒 PERMITIMOS estos JSON (necesarios)
+!ml_models/class_indices.json
+!ml_models/training_metrics.json

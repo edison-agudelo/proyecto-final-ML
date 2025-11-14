@@ -39,7 +39,7 @@
 
 
 <!-- ======================================================= -->
-<!-- 🔹 SECCIÓN 2: MODELO CNN (CÁMARA) -->
+<!-- 🔹 SECCIÓN 2: MODELO CNN -->
 <!-- ======================================================= -->
 <section class="seccion-modelo">
     <h3>📷 Control de calidad visual</h3>
@@ -53,6 +53,7 @@
     <form method="POST" action="{{ url_for('prediccion') }}">
         <input type="hidden" name="tipo" value="cnn">
         <input type="hidden" name="imagen" id="imagen">
+
         <button type="button" class="btn-prediccion" onclick="iniciarCamara()">📸 Abrir cámara</button>
         <button type="submit" class="btn-prediccion">Analizar imagen</button>
     </form>
@@ -160,6 +161,41 @@
     .preview-container {
         text-align: center;
     }
+
+    /* Modal estilos */
+    .camera-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        width: 500px;
+    }
+
+    .btn-cerrar {
+        background: #888;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .btn-cerrar:hover {
+        background: #555;
+    }
 </style>
 
 <!-- ======================================================= -->
@@ -168,7 +204,6 @@
 <div id="cameraModal" class="camera-modal">
     <div class="modal-content">
         <h3>📷 Captura de imagen</h3>
-        <select id="cameraSelect"></select><br><br>
         <video id="video" width="480" height="360" autoplay></video><br>
         <button id="snap" class="btn-prediccion">Tomar foto</button><br><br>
         <button id="closeModal" class="btn-cerrar">Cerrar</button>
