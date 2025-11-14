@@ -3,7 +3,6 @@ services:
     name: proyecto-final-ml
     env: python
     plan: starter
-    region: oregon
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
