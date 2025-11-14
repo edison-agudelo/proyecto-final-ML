@@ -2,7 +2,7 @@ services:
   - type: web
     name: proyecto-final-ml
     env: python
-    plan: starter
+    plan: free
     buildCommand: ./render-build.sh
     startCommand: gunicorn app:app
     envVars:
