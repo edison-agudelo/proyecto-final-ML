@@ -1,52 +1,58 @@
+let modal = null;
 let video = null;
 let canvas = null;
-let cameraModal = null;
 let imagenInput = null;
 
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", () => {
+    modal = document.getElementById("cameraModal");
     video = document.getElementById("video");
     canvas = document.getElementById("canvas");
-    cameraModal = document.getElementById("cameraModal");
     imagenInput = document.getElementById("imagen");
 
-    document.getElementById("snap").onclick = tomarFoto;
-    document.getElementById("closeModal").onclick = cerrarCamara;
-};
+    const snapBtn = document.getElementById("snap");
+    const closeBtn = document.getElementById("closeModal");
 
-// Abrir la cámara
+    // 📸 Botón de tomar foto
+    snapBtn.addEventListener("click", () => {
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const dataURL = canvas.toDataURL("image/png");
+        document.getElementById("captured").src = dataURL;
+
+        // Guardar imagen para enviarla al backend
+        imagenInput.value = dataURL;
+    });
+
+    // ❌ Botón cerrar modal
+    closeBtn.addEventListener("click", cerrarCamara);
+});
+
+// ==========================================================
+// 🔹 FUNCIÓN PARA INICIAR CÁMARA
+// ==========================================================
 function iniciarCamara() {
-    cameraModal.style.display = "block";
+    modal.style.display = "flex";
 
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
             video.srcObject = stream;
+            video.play();
         })
-        .catch(err => {
-            alert("No se pudo acceder a la cámara: " + err);
+        .catch(error => {
+            alert("⚠️ Error al acceder a la cámara: " + error);
         });
 }
 
-// Tomar foto y mostrarla + convertir a base64
-function tomarFoto() {
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    let dataURL = canvas.toDataURL("image/png");
-
-    // Mostrar preview
-    document.getElementById("captured").src = dataURL;
-
-    // Guardar base64 en input oculto
-    imagenInput.value = dataURL;
-
-    cerrarCamara();
-}
-
-// Cerrar modal de cámara
+// ==========================================================
+// 🔹 FUNCIÓN PARA CERRAR CÁMARA
+// ==========================================================
 function cerrarCamara() {
-    cameraModal.style.display = "none";
+    modal.style.display = "none";
 
+    // Detener la cámara
     if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
+        let tracks = video.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
     }
 }
