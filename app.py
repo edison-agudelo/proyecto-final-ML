@@ -12,6 +12,14 @@ from flask import (
     url_for, session, flash, g, jsonify
 )
 from tensorflow.keras.models import load_model
+import tensorflow as tf
+
+# =======================================================
+# ⚡ OPTIMIZACIÓN TENSORFLOW (EVITA LENTITUD)
+# =======================================================
+tf.get_logger().setLevel('ERROR')
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 
 # =======================================================
 # 🌿 CONFIGURACIÓN PRINCIPAL
@@ -21,7 +29,7 @@ app.secret_key = 'clave_secreta_para_tu_app'
 app.permanent_session_lifetime = timedelta(minutes=30)
 
 # =======================================================
-# 📌 CONFIG SQLITE (Render-friendly)
+# 📌 CONFIG SQLITE
 # =======================================================
 DB_PATH = os.path.join(os.path.dirname(__file__), "pure_ml.db")
 print(">>> Ruta BD:", DB_PATH)
@@ -302,11 +310,12 @@ def pedido_desde_carrito():
     return render_template("pedido_carrito.html", productos=productos, total=round(total, 2))
 
 # =======================================================
-# 🤖 MACHINE LEARNING – REGRESIÓN
+# 🤖 MACHINE LEARNING – MODELO DE REGRESIÓN
 # =======================================================
 try:
     with open(os.path.join("ml_models", "regression_model.pkl"), "rb") as f:
         modelo_regresion = pickle.load(f)
+    print("✅ Modelo de regresión cargado")
 except Exception as e:
     print("⚠ Error cargando modelo regresión:", e)
     modelo_regresion = None
@@ -323,7 +332,7 @@ CNN_CLASSES = []
 if os.path.exists(cnn_model_path):
     try:
         cnn_model = load_model(cnn_model_path)
-        print("✅ CNN cargado:", cnn_model_path)
+        print("✅ CNN cargada con éxito")
     except Exception as e:
         print("⚠ Error cargando CNN:", e)
 
@@ -339,6 +348,9 @@ CNN_LABELS_HUMAN = {
     "yuca mala": "Yuca de calidad C (defectuosa)"
 }
 
+# =======================================================
+# 🔮 PREDICCIÓN ML (REGRESIÓN + CNN)
+# =======================================================
 @app.route('/prediccion', methods=['GET', 'POST'])
 def prediccion():
     if "logueado" not in session:
@@ -351,27 +363,40 @@ def prediccion():
     if request.method == "POST":
         tipo = request.form.get("tipo")
 
+        # ---------------------------
+        # 🔹 REGRESIÓN
+        # ---------------------------
         if tipo == "regresion" and modelo_regresion:
             try:
                 t1 = float(request.form["tipo_camote"])
                 h = float(request.form["humedad"])
                 t2 = float(request.form["tamano_lote"])
-                entrada = np.array([[t1, h, t2]])
-                resultado_regresion = round(modelo_regresion.predict(entrada)[0], 2)
+
+                entrada = np.array([[t1, h, t2]], dtype=np.float32)
+
+                pred = modelo_regresion.predict(entrada)
+                resultado_regresion = round(float(pred[0]), 2)
+
             except Exception as e:
                 resultado_regresion = f"⚠ Error: {e}"
 
+        # ---------------------------
+        # 🔹 CNN
+        # ---------------------------
         elif tipo == "cnn" and cnn_model:
             img_data = request.form.get("imagen")
             if img_data:
                 try:
                     img_data = img_data.split(",")[1]
                     img = Image.open(BytesIO(base64.b64decode(img_data))).convert("RGB")
-                    img = img.resize((128, 128))
-                    img_array = np.array(img) / 255.0
+
+                    # Más rápido que resize
+                    img.thumbnail((128, 128))
+
+                    img_array = np.array(img, dtype=np.float32) / 255.0
                     img_array = np.expand_dims(img_array, axis=0)
 
-                    pred = cnn_model.predict(img_array)
+                    pred = cnn_model.predict(img_array, verbose=0)
                     idx = int(np.argmax(pred))
 
                     clase = CNN_CLASSES[idx]
@@ -387,7 +412,7 @@ def prediccion():
     )
 
 # =======================================================
-# 💬 CHATBOT INTEGRADO AQUÍ
+# 💬 CHATBOT
 # =======================================================
 def responder_chatbot(mensaje: str) -> str:
     msg = mensaje.lower()
